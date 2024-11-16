@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "momo3扩展",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "action": {
+    "default_popup": "/default_popup/index.html",
+    "default_icon": {
+      "32": "icons/32.png",
+      "72": "icons/72.png",
+      "128": "icons/128.png",
+      "512": "icons/512.png"
+    }
+  },
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "js": ["scripts/content_script.js"],
+      "matches": [
+        "https://www.zhihu.com/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "scripts/service_worker.js",
+    "type": "module"
+  }
+}
