@@ -16,7 +16,8 @@
       "css": ["styles/content.css"],
       "matches": [
         "https://www.zhihu.com/*",
-        "https://www.baidu.com/*"
+        "https://www.baidu.com/*",
+        "https://www.mim.zone/*"
       ]
     }
   ],
