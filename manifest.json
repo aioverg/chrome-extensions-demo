@@ -13,6 +13,7 @@
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],
+      "css": ["styles/content.css"],
       "matches": [
         "https://www.zhihu.com/*",
         "https://www.baidu.com/*"

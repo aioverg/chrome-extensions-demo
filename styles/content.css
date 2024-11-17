@@ -1,0 +1,25 @@
+.collectDialog {
+  position: fixed;
+  top: 250px;
+  right: 20px;
+  font-size: 12px;
+  width: 450px;
+  display: flex;
+  justify-content: flex-end;
+}
+.collectDialog-left {
+  background: #FFFFFF;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border: 1px solid;
+}
+.collectDialog-button {
+  width: 80px;
+  height: 28px;
+  background: #5A72DB;
+  border: 1px solid #5A72DB;
+  border-radius: 16px;
+  cursor: pointer;
+  color: #FFFFFF;
+}

@@ -10,7 +10,6 @@
   touch-action: manipulation;
 }
 
-.default-button:focus,
 .default-button:hover {
   border-color: #40a9ff;
   color: #fff;
