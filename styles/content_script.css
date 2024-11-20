@@ -1,32 +1,93 @@
-.collectDialog {
+.momo-collect-dialog{
   position: fixed;
   top: 250px;
   right: 20px;
   font-size: 12px;
-  width: 450px;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  justify-content: end;
+  height: 228px;
 }
 
-.collectDialog-left {
-  background: #FFFFFF;
-  height: 40px;
+.momo-fold-content {
+  height: 0;
+  width: 60px;
+  overflow-y: hidden;
+  border-radius: 12px;
+  background: #FFF;
+  box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.04), 0px 8px 32px 0px rgba(0, 0, 0, 0.08);
+  transition: height 0.4s linear;
+}
+
+.momo-unfold-content {
+  height: 228px;
+}
+
+#momo-fold {
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  background-color: rgba(0,0,0,0);
+  border-radius: 12px;
+}
+
+.momo-unfold {
+  background-color: #fff !important;
+}
+
+
+#momo-warehouse, #momo-collect {
+  cursor: pointer;
+  position: relative;
+}
+
+.momo-collect-tips {
+  position: fixed;
+  top: 365px;
+  right: 90px;
+  padding: 6px 6px 6px 12px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.10);
+  font-size: 12px;
+  color: #111827;
+  line-height: 20px;
   display: flex;
   align-items: center;
-  border: 1px solid;
 }
 
-#collectDialog-button {
+.momo-collect-tips .icon-arrow {
+  position: absolute;
+  right: -8px;
+}
+
+.momo-collect-tips .icon-close {
+  position: absolute;
+  left: -19px;
+  top: -19px;
+  cursor: pointer;
+}
+
+
+.momo-button {
   margin: 0;
   padding: 0;
-  width: 80px;
-  height: 28px;
+  display: flex;
+  height: 40px;
+  padding: 0px 16px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
   background: #5A72DB;
   border: 0;
-  border-radius: 16px;
   cursor: pointer;
   color: #FFFFFF;
   font-size: 12px;
+  flex-shrink: 0;
 
   position: relative;
   z-index: 1;
@@ -35,11 +96,11 @@
   
 }
 
-#collectDialog-button:hover{
+.momo-button:hover{
   background: #4096ff;
 }
 
-#collectDialog-button::after{
+.momo-button::after{
   content: '';
   inset: 0;
   position: absolute;
@@ -52,7 +113,7 @@
   
 }
 
-#collectDialog-button:active::after{
+.momo-button:active::after{
   z-index: -1;
   background: #5A72DB;
   opacity: 0.5;
