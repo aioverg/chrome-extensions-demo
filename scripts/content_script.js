@@ -151,7 +151,7 @@ function collectDialog () {
       <span class="icon-arrow">${icon.arrow}</span>
     </div>
   `
-  document.body.insertAdjacentHTML('afterend', dom + tipsDom)
+  document.body.insertAdjacentHTML('afterend', dom)
 
   // 展开收起
   const momoFoldBt = document.getElementById('momo-fold')
@@ -159,7 +159,7 @@ function collectDialog () {
     const dom = document.getElementById('momo-content')
     if (dom.classList.contains('momo-unfold-content')) {
       dom.classList.remove('momo-unfold-content')
-      setTimeout(() => momoFoldBt.classList.remove('momo-unfold'), 400)
+      setTimeout(() => momoFoldBt.classList.remove('momo-unfold'), 350)
     } else {
       dom.classList.add('momo-unfold-content')
       momoFoldBt.classList.add('momo-unfold')
@@ -173,7 +173,48 @@ function collectDialog () {
   
 }
 
+// 单品采集 tips
+function singleCollectTip () {
+  const dom = `
+    <div class="momo-collect-tips">
+      <div class="icon-close">${icon.close}</div>
+      <div style="width: 244px; display: flex; align-items: center; justify-content: space-between;">
+        <span>當前頁支持單品採集，<br />請點擊搬家按鈕，採集商品</span>
+        <button class="momo-button">一鍵搬家</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+}
+
+// 批量采集 tips
+function batchCollectTip () {
+  const dom = `
+    <div class="momo-collect-tips">
+      <div class="icon-close">${icon.close}</div>
+      <div style="width: 244px; display: flex; align-items: center; justify-content: space-between;">
+        <span>當前頁支持批量採集，<br/>請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
+        <button class="momo-button">採集</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+
+    <div class="momo-collect-tips">
+      <div class="icon-close">${icon.close}</div>
+      <div style="width: 244px; display: flex; align-items: center; justify-content: space-between;">
+        <span>請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
+        <button class="momo-button">一鍵搬家</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+}
+
 collectDialog()
+batchCollectTip()
+// singleCollectTip()
 
 // (async () => {
 //   console.log('内容启动运行');
