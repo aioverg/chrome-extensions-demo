@@ -1,60 +1,60 @@
 // 图标
 const icon = {
-  close: `<svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g clip-path="url(#clip0_2910_1002)" filter="url(#filter0_d_2910_1002)">
-  <g filter="url(#filter1_d_2910_1002)">
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.667 18.9998C10.667 14.3974 14.3978 10.6665 19.0003 10.6665C23.6028 10.6665 27.3337 14.3974 27.3337 18.9998C27.3337 23.6023 23.6028 27.3332 19.0003 27.3332C14.3978 27.3332 10.667 23.6023 10.667 18.9998Z" fill="white"/>
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.667 18.9998C10.667 14.3974 14.3978 10.6665 19.0003 10.6665C23.6028 10.6665 27.3337 14.3974 27.3337 18.9998C27.3337 23.6023 23.6028 27.3332 19.0003 27.3332C14.3978 27.3332 10.667 23.6023 10.667 18.9998Z" stroke="#D2D5DA" stroke-width="0.5"/>
-  </g>
-  <path d="M21.3576 16.6431L16.6436 21.3571L21.3576 16.6431Z" stroke="#6C757D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M16.6436 16.6431L21.3576 21.3571L16.6436 16.6431Z" stroke="#6C757D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
-<defs>
-<filter id="filter0_d_2910_1002" x="-0.6" y="-0.6" width="39.2" height="39.2" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset/>
-<feGaussianBlur stdDeviation="4.8"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
-</filter>
-<filter id="filter1_d_2910_1002" x="7.41699" y="7.4165" width="23.167" height="23.1665" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset/>
-<feGaussianBlur stdDeviation="1.5"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
-</filter>
-<clipPath id="clip0_2910_1002">
-<rect width="20" height="20" fill="white" transform="translate(9 9)"/>
-</clipPath>
-</defs>
-</svg>
-`,
+  close: `
+    <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_2910_1002)" filter="url(#filter0_d_2910_1002)">
+        <g filter="url(#filter1_d_2910_1002)">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10.667 18.9998C10.667 14.3974 14.3978 10.6665 19.0003 10.6665C23.6028 10.6665 27.3337 14.3974 27.3337 18.9998C27.3337 23.6023 23.6028 27.3332 19.0003 27.3332C14.3978 27.3332 10.667 23.6023 10.667 18.9998Z" fill="white"/>
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10.667 18.9998C10.667 14.3974 14.3978 10.6665 19.0003 10.6665C23.6028 10.6665 27.3337 14.3974 27.3337 18.9998C27.3337 23.6023 23.6028 27.3332 19.0003 27.3332C14.3978 27.3332 10.667 23.6023 10.667 18.9998Z" stroke="#D2D5DA" stroke-width="0.5"/>
+        </g>
+        <path d="M21.3576 16.6431L16.6436 21.3571L21.3576 16.6431Z" stroke="#6C757D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16.6436 16.6431L21.3576 21.3571L16.6436 16.6431Z" stroke="#6C757D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <defs>
+        <filter id="filter0_d_2910_1002" x="-0.6" y="-0.6" width="39.2" height="39.2" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset/>
+          <feGaussianBlur stdDeviation="4.8"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
+        </filter>
+        <filter id="filter1_d_2910_1002" x="7.41699" y="7.4165" width="23.167" height="23.1665" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset/>
+          <feGaussianBlur stdDeviation="1.5"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
+        </filter>
+        <clipPath id="clip0_2910_1002">
+          <rect width="20" height="20" fill="white" transform="translate(9 9)"/>
+        </clipPath>
+      </defs>
+    </svg>
+  `,
   arrow: `
-<svg width="8" height="36" viewBox="0 0 8 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g clip-path="url(#clip0_2910_1003)">
-            <path d="M6.16893 18.1843L6.36997 18L6.16893 17.8157L0.168931 12.3157L-0.25 11.9317L-0.25 12.5L-0.25 23.5L-0.250001 24.0683L0.168931 23.6843L6.16893 18.1843Z" fill="white" stroke="#D2D5DA" stroke-width="0.5"/>
-          </g>
-          <defs>
-            <clipPath id="clip0_2910_1003">
-              <rect width="35" height="8" fill="white" transform="translate(0 35.5) rotate(-90)"/>
-            </clipPath>
-          </defs>
-        </svg>
-`
+    <svg width="8" height="36" viewBox="0 0 8 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_2910_1003)">
+        <path d="M6.16893 18.1843L6.36997 18L6.16893 17.8157L0.168931 12.3157L-0.25 11.9317L-0.25 12.5L-0.25 23.5L-0.250001 24.0683L0.168931 23.6843L6.16893 18.1843Z" fill="white" stroke="#D2D5DA" stroke-width="0.5"/>
+      </g>
+      <defs>
+        <clipPath id="clip0_2910_1003">
+          <rect width="35" height="8" fill="white" transform="translate(0 35.5) rotate(-90)"/>
+        </clipPath>
+      </defs>
+    </svg>
+  `,
 }
 
 
 
 // 采集弹窗
 function collectDialog () {
-
   // 判断类型
   const type = (() => {
     if(window.location.href.includes('q')){
