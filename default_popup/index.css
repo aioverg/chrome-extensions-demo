@@ -1,0 +1,48 @@
+.default-button {
+  display: inline-block;
+  height: 40px;
+  cursor: pointer;
+  font-size: 14px;
+  border: 0;
+  border-radius: 2px;
+  color: #fff;
+  background: #5e6999;
+
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px #00000004;
+  transition: .3s;
+}
+
+.default-button:hover {
+  background: #5a81a1;
+}
+
+.default-button::after{
+  content: '';
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+  border-radius: inherit;
+  background: #5e6999;
+  opacity: 0;
+  box-shadow: 0 0 0 8px #5e6999;
+  transition: .3s;
+  
+}
+
+.default-button:active::after{
+  z-index: -1;
+  background: #5e6999;
+  opacity: 0.5;
+  box-shadow: none;
+  transition: 0s;
+}
+
+.hidden {
+  display: none;
+}
+
+.show {
+  display: block;
+}

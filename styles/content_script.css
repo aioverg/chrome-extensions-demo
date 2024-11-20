@@ -47,7 +47,7 @@
   border-radius: inherit;
   background: #4096ff;
   opacity: 0;
-  box-shadow: 0 0 0 18px #5A72DB;
+  box-shadow: 0 0 0 8px #5A72DB;
   transition: .3s;
   
 }
