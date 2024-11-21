@@ -11,7 +11,7 @@ const icon = {
         <path d="M16.6436 16.6431L21.3576 21.3571L16.6436 16.6431Z" stroke="#6C757D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
       <defs>
-        <filter id="filter0_d_2910_1002" x="-0.6" y="-0.6" width="39.2" height="39.2" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <filter width="39.2" height="39.2" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
           <feFlood flood-opacity="0" result="BackgroundImageFix"/>
           <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
           <feOffset/>
@@ -21,7 +21,7 @@ const icon = {
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
         </filter>
-        <filter id="filter1_d_2910_1002" x="7.41699" y="7.4165" width="23.167" height="23.1665" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <filter x="7.41699" y="7.4165" width="23.167" height="23.1665" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
           <feFlood flood-opacity="0" result="BackgroundImageFix"/>
           <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
           <feOffset/>
@@ -31,7 +31,7 @@ const icon = {
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2910_1002"/>
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2910_1002" result="shape"/>
         </filter>
-        <clipPath id="clip0_2910_1002">
+        <clipPath>
           <rect width="20" height="20" fill="white" transform="translate(9 9)"/>
         </clipPath>
       </defs>
@@ -48,7 +48,7 @@ const icon = {
         <path d="M6.16893 18.1843L6.36997 18L6.16893 17.8157L0.168931 12.3157L-0.25 11.9317L-0.25 12.5L-0.25 23.5L-0.250001 24.0683L0.168931 23.6843L6.16893 18.1843Z" fill="white" stroke="#D2D5DA" stroke-width="0.5"/>
       </g>
       <defs>
-        <clipPath id="clip0_2910_1003">
+        <clipPath>
           <rect width="35" height="8" fill="white" transform="translate(0 35.5) rotate(-90)"/>
         </clipPath>
       </defs>
@@ -56,7 +56,7 @@ const icon = {
   `,
   warehouse: `
     <svg width="60" height="85" viewBox="0 0 60 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <mask id="path-1-inside-1_2884_4228" fill="white">
+      <mask fill="white">
         <path d="M0 12.5C0 5.87258 5.37258 0.5 12 0.5H48C54.6274 0.5 60 5.87258 60 12.5V84.5H0V12.5Z"/>
       </mask>
       <path d="M0 12.5C0 5.87258 5.37258 0.5 12 0.5H48C54.6274 0.5 60 5.87258 60 12.5V84.5H0V12.5Z" fill="white"/>
@@ -84,7 +84,7 @@ const icon = {
         <path d="M27.133 17.3818H21.2333C20.7912 17.3818 20.4333 17.7309 20.4333 18.1586V22.3273H21.9315V18.8364H23.4326V22.3273H24.9337V18.8364H26.4348V22.3273H27.9359V18.1586C27.933 17.7309 27.5752 17.3818 27.133 17.3818Z" fill="white"/>
       </g>
       <defs>
-        <clipPath id="clip0_214_1854">
+        <clipPath>
           <rect width="32" height="4.94545" fill="white" transform="translate(4 17.3818)"/>
         </clipPath>
       </defs>
@@ -101,10 +101,10 @@ function collectStorage(Ids=[]) {
 
 // 采集失败 dialog
 function collectFailDialog() {
-  const destroyDom = document.getElementById('collectFailDialog')
+  const destroyDom = document.getElementById('momo-id-collect-fail-dialog')
   destroyDom && destroyDom.remove()
   const dom = `
-    <dialog id="collectFailDialog" class="momo-dialog">
+    <dialog id="momo-id-collect-fail-dialog" class="momo-dialog">
       <form method="dialog">
         <div class="momo-dialog-head">
           <span style="color: #DC3545;">采集失败</span>
@@ -120,16 +120,16 @@ function collectFailDialog() {
     </dialog>
   `
   document.body.insertAdjacentHTML('afterend', dom)
-  const dialogDom = document.getElementById("collectFailDialog");
+  const dialogDom = document.getElementById("momo-id-collect-fail-dialog");
   dialogDom.showModal();
 }
 
 // 采集成功 dialog
 function collectScuessDialog() {
-  const destroyDom = document.getElementById('collectScuessDialog')
+  const destroyDom = document.getElementById('collect-id-scuess-dialog')
   destroyDom && destroyDom.remove()
   const dom = `
-    <dialog id="collectScuessDialog" class="momo-dialog">
+    <dialog id="collect-id-scuess-dialog" class="momo-dialog">
       <form method="dialog">
         <div class="momo-dialog-head">
           <span style="color: #343A40;">采集成功</span>
@@ -147,27 +147,79 @@ function collectScuessDialog() {
     </dialog>
   `
   document.body.insertAdjacentHTML('afterend', dom)
-  const dialogDom = document.getElementById("collectScuessDialog");
+  const dialogDom = document.getElementById("collect-id-scuess-dialog");
   dialogDom.showModal();
+}
+
+// checkbox 事件
+function checkedEvent (e, checkAllDomId, checkGroupParentId, checkGroupClassName) {
+  if (e.target.nodeName !== 'INPUT') { return }
+
+  const checkAllDom = document.getElementById(checkAllDomId)
+  checkAllDom.classList.remove('momo-all-checkbox-noCheckedAll')
+
+  // 全选
+  if (e.target.id === checkAllDomId) {
+    const checkBoxDoms = document.getElementById(checkGroupParentId).getElementsByClassName(checkGroupClassName)
+    for (const i of checkBoxDoms) {
+      i.checked = e.target.checked
+    }
+    return
+  }
+
+  // 单选
+  let checkAllType = ''
+  const checkBoxDoms = document.getElementById(checkGroupParentId).getElementsByClassName(checkGroupClassName)
+  if (e.target.checked) {
+    checkAllType = 'checkedAll'
+    for (const i of checkBoxDoms) {
+      if (!i.checked) {
+        checkAllType = 'noCheckedAll'
+        break
+      }
+    }
+  } else {
+    checkAllType = 'noChecked'
+    for (const i of checkBoxDoms) {
+      if (i.checked) {
+        checkAllType = 'noCheckedAll'
+        break
+      }
+    }
+  }
+  
+  if (checkAllType === 'checkedAll') {
+    checkAllDom.checked = true
+  } else if (checkAllType === 'noChecked') {
+    checkAllDom.checked = false
+  } else if (checkAllType === 'noCheckedAll') {
+    checkAllDom.checked = false
+    checkAllDom.classList.add('momo-all-checkbox-noCheckedAll')
+  }
 }
 
 // 采集仓库
 function collectWarehouse() {
-  const destroyDom = document.getElementById('collectWarehouse')
+  const collectWarehouseCheckedEvent = (e) => checkedEvent(e, 'momo-id-all-checkbox', 'momo-id-table', 'momo-checkbox')
+
+  const destoryCheckEvent = document.getElementById('momo-id-table')
+  destoryCheckEvent && destoryCheckEvent.removeEventListener('click', collectWarehouseCheckedEvent)
+  
+  const destroyDom = document.getElementById('momo-id-warehouse-dialog')
   destroyDom && destroyDom.remove()
   const dom = `
-    <dialog id="collectWarehouse" class="momo-dialog">
+    <dialog id="momo-id-warehouse-dialog" class="momo-dialog">
       <form method="dialog">
         <div class="momo-dialog-head">
           <span style="color: #DC3545;">採集商品庫</span>
           <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
         </div>
         <div style="width: 640px; padding: 24px 0; height: 472px;">
-          <div class="momo-table">
+          <div class="momo-table" id="momo-id-table">
             <div class="momo-table-thead">
               <div class="momo-table-tr">
                 <div class="momo-table-cell" style="48px">
-                  <input type="checkbox" class="momo-checkbox momo-all-checkbox" />
+                  <input type="checkbox" id="momo-id-all-checkbox" class="momo-all-checkbox" />
                 </div>
                 <div class="momo-table-cell" style="flex: 1;">商品名称</div>
                 <div class="momo-table-cell" style="width: 100px">售价</div>
@@ -194,57 +246,72 @@ function collectWarehouse() {
                 <div class="momo-table-cell" style="width: 100px">3更多梵蒂冈豆腐干豆腐干豆腐干恢复和规范</div>
                 <div class="momo-table-cell" style="width: 130px">4立刻就开会开会艰苦环境开会看见好看</div>
               </div>
+              <div class="momo-table-tr">
+                <div class="momo-table-cell" style="48px">
+                  <input type="checkbox" class="momo-checkbox" />
+                </div>
+                <div class="momo-table-cell" style="flex: 1;">1u体育兔兔与统一的风格故事的发生发射点</div>
+                <div class="momo-table-cell" style="width: 100px">2大大苏打实打实大苏打实打实大苏打</div>
+                <div class="momo-table-cell" style="width: 100px">3更多梵蒂冈豆腐干豆腐干豆腐干恢复和规范</div>
+                <div class="momo-table-cell" style="width: 130px">4立刻就开会开会艰苦环境开会看见好看</div>
+              </div>
             </div>
           </div>
        </div>
         <div class="momo-dialog-bottom">
-        <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
-          <button class="momo-button momo-button-color-2" value="cancel">確認導入</button>
+          <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
+          <button id="momo-id-import-confirm" class="momo-button momo-button-color-2" value="cancel">確認導入</button>
         </div>
       </form>
     </dialog>
   `
   document.body.insertAdjacentHTML('afterend', dom)
-  const dialogDom = document.getElementById("collectWarehouse");
+  const dialogDom = document.getElementById("momo-id-warehouse-dialog");
   dialogDom.showModal();
+
+  const momoTableDom = document.getElementById('momo-id-table')
+  momoTableDom.addEventListener('click', collectWarehouseCheckedEvent)
+
+  // 导入
+  const confirmDom = document.getElementById('momo-id-import-confirm')
+  confirmDom.onclick = () => {
+    console.log('确认导入')
+  }
 }
 
 // 开启关闭 tip
-function openTip(id) {
+function switchTip(id, className, type) {
   const tipDom = document.getElementById(id)
-  tipDom.classList.contains(`${id}-show`) ? tipDom.classList.replace(`${id}-show`, `${id}-hidden`) : tipDom.classList.replace(`${id}-hidden`, `${id}-show`)
+  console.log(1111, id, className, type)
+  if (type === 'show') {
+    tipDom.classList.remove(`${className}-hidden`)
+    tipDom.classList.add(`${className}-show`)
+  } else {
+    tipDom.classList.remove(`${className}-show`)
+    tipDom.classList.add(`${className}-hidden`)
+  }
 }
 
 // 采集浮窗
 function collectFloat() {
-  // 判断类型
-  const type = (() => {
-    if(window.location.href.includes('q')){
-      // 单个
-      return 'single'
-    } else if(!window.location.href.includes('q')) {
-      // 批量
-      return 'batch'
-    }
-  })()
 
   const dom = `
     <div class="momo-collect-float">
-      <div id="momo-content" class="momo-collect-float-content">
-        <div id="momo-warehouse">${icon.warehouse}</div>
+      <div id="momo-id-float-content" class="momo-collect-float-content">
+        <div id="momo-id-open-warehouse">${icon.warehouse}</div>
 
-        <div id="momo-collect">${icon.collect}</div>
+        <div id="momo-id-open-collect">${icon.collect}</div>
       </div>
 
-      <div id="momo-fold">${icon.brand}</div>
+      <div id="momo-id-fold-float">${icon.brand}</div>
     </div>
   `
   document.body.insertAdjacentHTML('afterend', dom)
 
   // 展开收起
-  const foldBt = document.getElementById('momo-fold')
+  const foldBt = document.getElementById('momo-id-fold-float')
   foldBt.onclick = () => {
-    const dom = document.getElementById('momo-content')
+    const dom = document.getElementById('momo-id-float-content')
     if (dom.classList.contains('momo-unfold-content')) {
       dom.classList.remove('momo-unfold-content')
       setTimeout(() => foldBt.classList.remove('momo-unfold'), 350)
@@ -255,22 +322,22 @@ function collectFloat() {
   }
 
   // 仓库
-  const warehouseBt = document.getElementById('momo-warehouse')
+  const warehouseBt = document.getElementById('momo-id-open-warehouse')
   warehouseBt.onclick = () => {
     collectWarehouse()
   }
 
   // 单品采集
-  const collectBt = document.getElementById('momo-collect')
+  const collectBt = document.getElementById('momo-id-open-collect')
   collectBt.onclick = () => {
     const type = checkCollectType()
     switch(type) {
       case 'single':
-        openTip('momo-single-collect-tip')
+        switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'show')
         break
       case 'batch':
-        const checkDom = document.getElementById('momo-batch-allcheck')
-        checkDom ? openTip('momo-batch-collect-tip-2') : openTip('momo-batch-collect-tip-1')
+        const checkDom = document.getElementById('momo-xiapi-id-all-checkbox')
+        checkDom ? switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show') : switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
         break
       default:
         console.log('类型检测出错')
@@ -295,11 +362,11 @@ function checkCollectType() {
 // 单品采集 tip
 function singleCollectTip() {
   const dom = `
-    <div id="momo-single-collect-tip" class="momo-collect-tip momo-single-collect-tip-hidden">
-      <div id="momo-single-collect-close" class="icon-close">${icon.close1}</div>
+    <div id="momo-id-single-collect-tip" class="momo-collect-tip momo-single-collect-tip-hidden">
+      <div id="momo-id-single-collect-close" class="icon-close">${icon.close1}</div>
       <div style="display: flex; align-items: center; justify-content: space-between;">
         <span style="margin: 0 12px 0 0">當前頁支持單品採集，<br />請點擊搬家按鈕，採集商品</span>
-        <button id="momo-single-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
+        <button id="momo-id-single-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
       </div>
       <span class="icon-arrow">${icon.arrow}</span>
     </div>
@@ -307,66 +374,84 @@ function singleCollectTip() {
   document.body.insertAdjacentHTML('afterend', dom)
 
   // 关闭 tip
-  const closeDom = document.getElementById('momo-single-collect-close')
-  closeDom.onclick = () => openTip('momo-single-collect-tip')
+  const closeDom = document.getElementById('momo-id-single-collect-close')
+  closeDom.onclick = () => switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'hidden')
 
   // 一键搬家
-  const singleCollectStorage = document.getElementById('momo-single-collect-storage')
+  const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
   singleCollectStorage.onclick = () => {
     collectStorage([1,2,3])
     collectScuessDialog()
   }
 }
 
-// 批量采集 tip
-function batchCollectTip() {
+// 批量采集 tip1
+function batchCollectTip1() {
+  const collectCheckedEvent = (e) => checkedEvent(e, 'momo-xiapi-id-all-checkbox', 'momo-xiapi-id-collect-table', 'momo-checkbox')
+  const xiapiTableDom = document.getElementsByClassName('HotList-list')[0]
+  xiapiTableDom.id = "momo-xiapi-id-collect-table"
+  xiapiTableDom.removeEventListener('click', collectCheckedEvent)
   const dom = `
-    <div id="momo-batch-collect-tip-1" class="momo-collect-tip momo-batch-collect-tip-1-hidden">
-      <div id="momo-batch-collect-1-close" class="icon-close">${icon.close1}</div>
+    <div id="momo-id-batch-collect-tip-1" class="momo-collect-tip momo-batch-collect-tip-1-hidden">
+      <div id="momo-id-batch-collect-1-close" class="icon-close">${icon.close1}</div>
       <div style="display: flex; align-items: center; justify-content: space-between;">
         <span style="margin: 0 12px 0 0">當前頁支持批量採集，<br/>請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
-        <button id="momo-batch-collect-button" class="momo-button momo-button-color-1">採集</button>
-      </div>
-      <span class="icon-arrow">${icon.arrow}</span>
-    </div>
-
-    <div id="momo-batch-collect-tip-2" class="momo-collect-tip momo-batch-collect-tip-2-hidden">
-      <div id="momo-batch-collect-2-close" class="icon-close">${icon.close1}</div>
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="margin: 0 12px 0 0">請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
-        <button id="momo-batch-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
+        <button id="momo-id-batch-collect-button" class="momo-button momo-button-color-1">採集</button>
       </div>
       <span class="icon-arrow">${icon.arrow}</span>
     </div>
   `
   document.body.insertAdjacentHTML('afterend', dom)
 
-  // 关闭 tip1
-  const closeDom1 = document.getElementById('momo-batch-collect-1-close')
-  closeDom1.onclick = () => openTip('momo-batch-collect-tip-1')
-
-  // 关闭 tip2
-  const closeDom2 = document.getElementById('momo-batch-collect-2-close')
-  closeDom2.onclick = () => openTip('momo-batch-collect-tip-2')
+  // 关闭 tip
+  const closeDom1 = document.getElementById('momo-id-batch-collect-1-close')
+  closeDom1.onclick = () => switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
 
   // 列表插入选择框
-  const batchCollectBt = document.getElementById('momo-batch-collect-button')
+  const batchCollectBt = document.getElementById('momo-id-batch-collect-button')
   batchCollectBt.onclick = () => {
-    document.body.insertAdjacentHTML('afterend', `<h2 id="momo-batch-allcheck">全选</h2>`)
-    openTip('momo-batch-collect-tip-1')
-    openTip('momo-batch-collect-tip-2')
+    xiapiTableDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="momo-xiapi-id-all-checkbox" class="momo-all-checkbox" />`)
+
+    const xiapiTableBodyItemDoms = xiapiTableDom.getElementsByClassName('HotItem')
+    for (const i of xiapiTableBodyItemDoms) {
+      i.insertAdjacentHTML('afterbegin', `<input type="checkbox" class="momo-checkbox" />`)
+    }
+
+    xiapiTableDom.addEventListener('click', collectCheckedEvent)
+    switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
+    switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show')
   }
+}
+
+// 批量采集 tip2
+function batchCollectTip2() {
+  const dom = `
+    <div id="momo-id-batch-collect-tip-2" class="momo-collect-tip momo-batch-collect-tip-2-hidden">
+      <div id="momo-id-batch-collect-2-close" class="icon-close">${icon.close1}</div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="margin: 0 12px 0 0">請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
+        <button id="momo-id-batch-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+
+  // 关闭 tip
+  const closeDom2 = document.getElementById('momo-id-batch-collect-2-close')
+  closeDom2.onclick = () => switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
 
   // 一键搬家
-  const batchCollectStorage = document.getElementById('momo-batch-collect-storage')
+  const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
   batchCollectStorage.onclick = () => {
     collectStorage([1,2,3])
   }
 }
 
 collectFloat()
-batchCollectTip()
 singleCollectTip()
+batchCollectTip1()
+batchCollectTip2()
 
 // (async () => {
 //   console.log('内容启动运行');

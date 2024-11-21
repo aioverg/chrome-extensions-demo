@@ -24,7 +24,7 @@
   height: 216px;
 }
 
-.momo-collect-float #momo-fold {
+.momo-collect-float #momo-id-fold-float {
   height: 50px;
   position: absolute;
   bottom: 0;
@@ -40,7 +40,7 @@
 }
 
 
-.momo-collect-float #momo-warehouse, .momo-collect-float #momo-collect {
+.momo-collect-float #momo-id-open-warehouse, .momo-collect-float #momo-id-open-collect {
   cursor: pointer;
   position: relative;
 }
@@ -263,14 +263,14 @@
   align-items: center;
 }
 
-.momo-checkbox {
+.momo-checkbox, .momo-all-checkbox {
   width: 16px;
   height: 16px;
   cursor: pointer;
   position: relative;
 }
 
-.momo-checkbox[type="checkbox"]:checked::before {
+.momo-checkbox[type="checkbox"]:checked::before, .momo-all-checkbox[type="checkbox"]:checked::before {
   content: '';
   width: 20px;
   height: 20px;
@@ -282,7 +282,7 @@
   top: -2px;
 }
 
-.momo-all-checkbox::before {
+.momo-all-checkbox-noCheckedAll::before {
   content: '';
   width: 20px;
   height: 20px;
