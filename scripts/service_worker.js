@@ -10,7 +10,7 @@ async function loadImageData(url) {
 
 chrome.runtime.onInstalled.addListener(async () => {
 
-  chrome.action.disable(); // 禁用插件
+  // chrome.action.disable(); // 禁用插件
 
   // 载入图片
   const png16 = await loadImageData("/icons/16.png")
