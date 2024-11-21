@@ -162,6 +162,23 @@
   background: #5E6999;
 }
 
+.momo-button-color-3 {
+  background: #F5F5F5;
+}
+
+.momo-button-color-3:hover{
+  background: #edecec;
+}
+
+.momo-button-color-3::after {
+  background: #edecec;
+  box-shadow: 0 0 0 8px #F5F5F5;
+}
+
+.momo-button-color-3:active::after {
+  background: #F5F5F5;
+}
+
 
 .momo-dialog {
   border: 0;
@@ -176,6 +193,7 @@
   background: none;
   width: 20px;
   height: 20px;
+  cursor: pointer;
 }
 
 .momo-dialog .momo-dialog-head {

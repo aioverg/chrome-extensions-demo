@@ -198,6 +198,7 @@ function collectWarehouse() {
           </div>
        </div>
         <div class="momo-dialog-bottom">
+        <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
           <button class="momo-button momo-button-color-2" value="cancel">確認導入</button>
         </div>
       </form>
@@ -207,8 +208,6 @@ function collectWarehouse() {
   const dialogDom = document.getElementById("collectWarehouse");
   dialogDom.showModal();
 }
-
-collectWarehouse()
 
 // 开启关闭 tip
 function openTip(id) {
@@ -258,7 +257,7 @@ function collectFloat() {
   // 仓库
   const warehouseBt = document.getElementById('momo-warehouse')
   warehouseBt.onclick = () => {
-
+    collectWarehouse()
   }
 
   // 单品采集
