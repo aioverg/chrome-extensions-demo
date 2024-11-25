@@ -91,12 +91,75 @@ const icon = {
     </svg>
   `
 }
+class MoMoStorage {
+  static db = null
+  constructor(name="ShopeeCollectDatabase"){
+    const request = indexedDB.open(name);
+    request.onerror = () => {
+      console.log('打开失败')
+    }
+    request.onsuccess = e => {
+      this.db = e.target.result
+    }
+  
+    request.onupgradeneeded = function (e) {
+      const db = e.target.result;
 
-// 一键搬家
-function collectStorage(Ids=[]) {
-  for (const i of Ids) {
-
+      let objectStore = db.createObjectStore('product', { keyPath: 'id', autoIncrement: false });
+  
+      objectStore.createIndex('value', 'value', { unique: false });
+    };
   }
+  // 增加数据
+  add(val) {
+    this.db.transaction(['product'], 'readwrite').objectStore('product').add(val)
+  }
+  // 插入或覆盖数据
+  put(val) {
+    this.db.transaction(['product'], 'readwrite').objectStore('product').put(val)
+  }
+  // 删除数据
+  delete(id) {
+    this.db.transaction(['product']).objectStore('product').delete(id)
+  }
+  // 获取全部数据
+  getAll() {
+    return this.db.transaction(['product']).objectStore('product').getAll()
+  }
+  // 更新数据
+  update(id, value) {
+    const objectStore = this.db.transaction(['product'], 'readwrite').objectStore('product')
+    const request = objectStore.get(id)
+    request.onsuccess = event => {
+      const data = event.target.result
+      data.value = value
+
+      const requestUpdate = objectStore.put(data)
+      requestUpdate.onsuccess = (event) => {
+        console.log('数据更新成功')
+      };
+    }
+  }
+}
+
+const storage = new MoMoStorage()
+
+// 虾皮搬家商品详情接口
+async function getShopeeDetails (params) {
+  const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
+  const resData = await response.json()
+  return Promise.resolve(resData)
+}
+
+// 获取商品列表详情
+async function collectStorage(params=[]) {
+  const promiseList = []
+  for (const i of params) {
+    promiseList.push(getShopeeDetails(i))
+  }
+  const res = await Promise.all(promiseList)
+
+  return Promise.resolve(res)
 }
 
 // 采集失败 dialog
@@ -125,7 +188,7 @@ function collectFailDialog() {
 }
 
 // 采集成功 dialog
-function collectScuessDialog() {
+function collectScuessDialog(num) {
   const destroyDom = document.getElementById('collect-id-scuess-dialog')
   destroyDom && destroyDom.remove()
   const dom = `
@@ -136,7 +199,7 @@ function collectScuessDialog() {
           <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
         </div>
         <div style="padding: 24px 24px 36px 24px; color: #111827; width: 420px;">
-          <span>本次共采集45个商品，已暂存商品，可到</span>
+          <span>本次共采集${num}个商品，已暂存商品，可到</span>
           <span style="color: #5E6999;">【商品管理-商品列表-暂存-搬家暂存】</span>
           <span>中确认商品信息后，再上架</span>
         </div>
@@ -352,11 +415,14 @@ function collectFloat() {
 
 // 检查单品采集和批量采集
 function checkCollectType() {
-  if(window.location.href.includes('baidu')){
-    return 'single'
-  } else if (window.location.href.includes('zhihu')) {
+  if (window.location.href.startsWith('https://seller.shopee.cn/portal/product/mtsku/list')) {
+    // 虾皮全球商品列表
     return 'batch'
+  } else if(window.location.href.match(/https:\/\/seller.shopee.cn\/portal\/product\/mtsku\/[0-9]*/)){
+    // 虾皮全球商品详情
+    return 'single'
   }
+  throw new Error('页面类型检测出错');
 }
 
 // 单品采集 tip
@@ -379,9 +445,13 @@ function singleCollectTip() {
 
   // 一键搬家
   const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
-  singleCollectStorage.onclick = () => {
-    collectStorage([1,2,3])
-    collectScuessDialog()
+  singleCollectStorage.onclick = async () => {
+    const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace('SPC_CDS=', '').replace(';', '')
+    const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
+    const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0].replace('cnsc_shop_id=', '')
+    const res = await collectStorage([`SPC_CDS=${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`])
+    res.forEach(i => storage.put({id: i.data.mtsku_item_id, value: i.data}))
+    collectScuessDialog(res.length)
   }
 }
 
@@ -444,14 +514,13 @@ function batchCollectTip2() {
   // 一键搬家
   const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
   batchCollectStorage.onclick = () => {
-    collectStorage([1,2,3])
   }
 }
 
 collectFloat()
 singleCollectTip()
-batchCollectTip1()
-batchCollectTip2()
+// batchCollectTip1()
+// batchCollectTip2()
 
 // (async () => {
 //   console.log('内容启动运行');

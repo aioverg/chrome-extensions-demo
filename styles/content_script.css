@@ -7,6 +7,7 @@
   flex-direction: column;
   justify-content: end;
   height: 228px;
+  z-index: 9999;
 }
 
 .momo-collect-float .momo-collect-float-content {

@@ -17,7 +17,8 @@
       "matches": [
         "https://www.zhihu.com/*",
         "https://www.baidu.com/*",
-        "https://www.mim.zone/*"
+        "https://www.mim.zone/*",
+        "https://seller.shopee.cn/portal/product/mtsku/*"
       ]
     }
   ],
