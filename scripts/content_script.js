@@ -91,9 +91,177 @@ const icon = {
     </svg>
   `
 }
+
+// api 接口
+const api = {
+  // shopee 商品详情接口
+  shopeeDetails: async (params) => {
+    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
+    const resData = await response.json()
+    console.log(312312, resData)
+    const __affix__ = {
+      price: [0, 0],
+      stock: 0,
+      id: resData.data.mtsku_item_id,
+    }
+    for (const i of resData.data.model_list) {
+      __affix__.stock += i.stock_detail.total_available_stock
+      if (+i.price_info.normal_price == 0 ) {
+        continue
+      }
+      if (__affix__.price[0] === 0 || __affix__.price[0] === +i.price_info.normal_price) {
+        __affix__.price[0] = +i.price_info.normal_price
+        continue
+      }
+      if (__affix__.price[0] > +i.price_info.normal_price) {
+        __affix__.price = [+i.price_info.normal_price, __affix__.price[0]]
+      } else {
+        __affix__.price = [__affix__.price[0], +i.price_info.normal_price]
+      }
+    }
+    return Promise.resolve({__affix__, ...resData})
+  }
+}
+
+// 批量采集注入标识
+const injectTarget = {
+  tableClass: 'momo-inject-class-table',
+  allCheckboxId: 'momo-inject-id-all-checkbox',
+  checkboxClass: 'momo-inject-class-checkbox',
+}
+
+// 通用 checkbox 事件
+function checkedEvent (e, checkAllDomId, checkGroupParentClassName, checkGroupClassName) {
+  if (!(e.target.id === checkAllDomId || e.target.classList.contains(checkGroupClassName))) { return }
+  const checkAllDom = document.getElementById(checkAllDomId)
+  checkAllDom.classList.remove('momo-all-checkbox-noCheckedAll')
+
+  // 全选
+  if (e.target.id === checkAllDomId) {
+    const checkBoxDoms = document.getElementsByClassName(checkGroupParentClassName)[0].getElementsByClassName(checkGroupClassName)
+    for (const i of checkBoxDoms) {
+      i.checked = e.target.checked
+    }
+    return
+  }
+
+  // 单选
+  let checkAllType = ''
+  const checkBoxDoms = document.getElementsByClassName(checkGroupParentClassName)[0].getElementsByClassName(checkGroupClassName)
+  if (e.target.checked) {
+    checkAllType = 'checkedAll'
+    for (const i of checkBoxDoms) {
+      if (!i.checked) {
+        checkAllType = 'noCheckedAll'
+        break
+      }
+    }
+  } else {
+    checkAllType = 'noChecked'
+    for (const i of checkBoxDoms) {
+      if (i.checked) {
+        checkAllType = 'noCheckedAll'
+        break
+      }
+    }
+  }
+  
+  if (checkAllType === 'checkedAll') {
+    checkAllDom.checked = true
+  } else if (checkAllType === 'noChecked') {
+    checkAllDom.checked = false
+  } else if (checkAllType === 'noCheckedAll') {
+    checkAllDom.checked = false
+    checkAllDom.classList.add('momo-all-checkbox-noCheckedAll')
+  }
+}
+
+// 批量采集注入 checkbox 事件
+function injectCheckboxEvent (e) {
+  checkedEvent(e, injectTarget.allCheckboxId, injectTarget.tableClass, injectTarget.checkboxClass)
+}
+
+// 采集仓库 checkbox 事件
+function warehouseCheckedEvent (e) {
+  checkedEvent(e, 'momo-id-all-checkbox', 'momo-class-table', 'momo-checkbox')
+}
+
+// 链接列表
+const url = {
+  cur: '',
+  initNum: 0,
+  list: [
+    { // shopee 全球商品列表
+      path: /portal\/product\/mtsku\/list/,
+      targetId: 'mtsku-list',
+      type: 'batch',
+      apiName: 'shopeeDetails',
+      apiParams: () => {
+        const params = []
+        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+        const checkBoxDom = document.getElementsByClassName(injectTarget.tableClass)[0].getElementsByClassName(injectTarget.checkboxClass)
+        for (const i of checkBoxDom) {
+          if (i.checked) {
+            params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+          }
+        }
+        return params
+      },
+      injectDom: () => {
+        const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+        if (rootDom) {
+          const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
+          theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
+    
+          const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+          for (const i of tbodyTrDoms) {
+            const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
+            i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+          }
+        }
+        rootDom.addEventListener('click', injectCheckboxEvent)
+      }
+    },
+    { // shopee 商品详情
+      path: /portal\/product\/mtsku\/[0-9]*/,
+      noTarget: true,
+      type: 'single',
+      apiName: 'shopeeDetails',
+      apiParams: () => {
+        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+        const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
+        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+        return [`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`]
+      }
+    }
+  ],
+  init: () => {
+    const href = window.location.href
+    for (const i of url.list) {
+      if(href.match(i.path)) {
+        url.cur = i
+        break
+      }
+    }
+  }
+}
+
+// 获取采集的商品详情数据
+async function getCollectDetails(params=[]) {
+  const promiseList = []
+  for (const i of params) {
+    promiseList.push(api[url.cur.apiName](i))
+  }
+  const res = await Promise.all(promiseList)
+
+  return Promise.resolve(res)
+}
+
+// 本地存储仓库
 class MoMoStorage {
   static db = null
-  constructor(name="ShopeeCollectDatabase"){
+  constructor(name = "ShopeeCollectDatabase"){
     const request = indexedDB.open(name);
     request.onerror = () => {
       console.log('打开失败')
@@ -144,23 +312,8 @@ class MoMoStorage {
 
 const storage = new MoMoStorage()
 
-// 虾皮搬家商品详情接口
-async function getShopeeDetails (params) {
-  const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
-  const resData = await response.json()
-  return Promise.resolve(resData)
-}
 
-// 获取商品列表详情
-async function collectStorage(params=[]) {
-  const promiseList = []
-  for (const i of params) {
-    promiseList.push(getShopeeDetails(i))
-  }
-  const res = await Promise.all(promiseList)
 
-  return Promise.resolve(res)
-}
 
 // 采集失败 dialog
 function collectFailDialog() {
@@ -214,138 +367,78 @@ function collectScuessDialog(num) {
   dialogDom.showModal();
 }
 
-// checkbox 事件
-function checkedEvent (e, checkAllDomId, checkGroupParentId, checkGroupClassName) {
-  if (e.target.nodeName !== 'INPUT') { return }
-
-  const checkAllDom = document.getElementById(checkAllDomId)
-  checkAllDom.classList.remove('momo-all-checkbox-noCheckedAll')
-
-  // 全选
-  if (e.target.id === checkAllDomId) {
-    const checkBoxDoms = document.getElementById(checkGroupParentId).getElementsByClassName(checkGroupClassName)
-    for (const i of checkBoxDoms) {
-      i.checked = e.target.checked
-    }
-    return
-  }
-
-  // 单选
-  let checkAllType = ''
-  const checkBoxDoms = document.getElementById(checkGroupParentId).getElementsByClassName(checkGroupClassName)
-  if (e.target.checked) {
-    checkAllType = 'checkedAll'
-    for (const i of checkBoxDoms) {
-      if (!i.checked) {
-        checkAllType = 'noCheckedAll'
-        break
-      }
-    }
-  } else {
-    checkAllType = 'noChecked'
-    for (const i of checkBoxDoms) {
-      if (i.checked) {
-        checkAllType = 'noCheckedAll'
-        break
-      }
-    }
-  }
-  
-  if (checkAllType === 'checkedAll') {
-    checkAllDom.checked = true
-  } else if (checkAllType === 'noChecked') {
-    checkAllDom.checked = false
-  } else if (checkAllType === 'noCheckedAll') {
-    checkAllDom.checked = false
-    checkAllDom.classList.add('momo-all-checkbox-noCheckedAll')
-  }
-}
-
-// 采集仓库
+// 采集仓库 dialog
 function collectWarehouse() {
-  const collectWarehouseCheckedEvent = (e) => checkedEvent(e, 'momo-id-all-checkbox', 'momo-id-table', 'momo-checkbox')
 
-  const destoryCheckEvent = document.getElementById('momo-id-table')
-  destoryCheckEvent && destoryCheckEvent.removeEventListener('click', collectWarehouseCheckedEvent)
+  const destoryCheckEvent = document.getElementsByClassName('momo-class-table')[0]
+  destoryCheckEvent && destoryCheckEvent.removeEventListener('click', warehouseCheckedEvent)
   
   const destroyDom = document.getElementById('momo-id-warehouse-dialog')
   destroyDom && destroyDom.remove()
-  const dom = `
-    <dialog id="momo-id-warehouse-dialog" class="momo-dialog">
-      <form method="dialog">
-        <div class="momo-dialog-head">
-          <span style="color: #DC3545;">採集商品庫</span>
-          <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
+
+  storage.getAll().onsuccess = (res => {
+    const tbodyDom = res.target.result.map(i => (`
+      <div class="momo-table-tr">
+        <div class="momo-table-cell" style="48px">
+          <input type="checkbox" class="momo-checkbox" data-id=${i.id} />
         </div>
-        <div style="width: 640px; padding: 24px 0; height: 472px;">
-          <div class="momo-table" id="momo-id-table">
-            <div class="momo-table-thead">
-              <div class="momo-table-tr">
-                <div class="momo-table-cell" style="48px">
-                  <input type="checkbox" id="momo-id-all-checkbox" class="momo-all-checkbox" />
+        <div class="momo-table-cell" style="flex: 1;">${i.value.data.name}</div>
+        <div class="momo-table-cell" style="width: 150px">${i.value.__affix__.price[0].toFixed(2)}${i.value.__affix__.price[1] ? ' - ' + i.value.__affix__.price[1].toFixed(2) : ''}</div>
+        <div class="momo-table-cell" style="width: 100px">${i.value.__affix__.stock}</div>
+        <div class="momo-table-cell" style="width: 130px">${i.value.__affix__.isImport ? '是' : '否'}</div>
+      </div>`)).join('')
+
+    const dom = `
+      <dialog id="momo-id-warehouse-dialog" class="momo-dialog">
+        <form method="dialog">
+          <div class="momo-dialog-head">
+            <span style="color: #DC3545;">採集商品庫</span>
+            <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
+          </div>
+          <div style="width: 640px; padding: 24px 0; height: 472px;">
+            <div class="momo-table momo-class-table">
+              <div class="momo-table-thead">
+                <div class="momo-table-tr">
+                  <div class="momo-table-cell" style="48px">
+                    <input type="checkbox" id="momo-id-all-checkbox" class="momo-all-checkbox" />
+                  </div>
+                  <div class="momo-table-cell" style="flex: 1;">商品名称</div>
+                  <div class="momo-table-cell" style="width: 150px">售价</div>
+                  <div class="momo-table-cell" style="width: 100px">库存量</div>
+                  <div class="momo-table-cell" style="width: 130px">歷史是否已導入</div>
                 </div>
-                <div class="momo-table-cell" style="flex: 1;">商品名称</div>
-                <div class="momo-table-cell" style="width: 100px">售价</div>
-                <div class="momo-table-cell" style="width: 100px">库存量</div>
-                <div class="momo-table-cell" style="width: 130px">歷史是否已導入</div>
               </div>
-            </div>
-            <div class="momo-table-tbody">
-              <div class="momo-table-tr">
-                <div class="momo-table-cell" style="48px">
-                  <input type="checkbox" class="momo-checkbox" />
-                </div>
-                <div class="momo-table-cell" style="flex: 1;">1u体育兔兔与统一的风格故事的发生发射点</div>
-                <div class="momo-table-cell" style="width: 100px">2大大苏打实打实大苏打实打实大苏打</div>
-                <div class="momo-table-cell" style="width: 100px">3更多梵蒂冈豆腐干豆腐干豆腐干恢复和规范</div>
-                <div class="momo-table-cell" style="width: 130px">4立刻就开会开会艰苦环境开会看见好看</div>
-              </div>
-              <div class="momo-table-tr">
-                <div class="momo-table-cell" style="48px">
-                  <input type="checkbox" class="momo-checkbox" />
-                </div>
-                <div class="momo-table-cell" style="flex: 1;">1u体育兔兔与统一的风格故事的发生发射点</div>
-                <div class="momo-table-cell" style="width: 100px">2大大苏打实打实大苏打实打实大苏打</div>
-                <div class="momo-table-cell" style="width: 100px">3更多梵蒂冈豆腐干豆腐干豆腐干恢复和规范</div>
-                <div class="momo-table-cell" style="width: 130px">4立刻就开会开会艰苦环境开会看见好看</div>
-              </div>
-              <div class="momo-table-tr">
-                <div class="momo-table-cell" style="48px">
-                  <input type="checkbox" class="momo-checkbox" />
-                </div>
-                <div class="momo-table-cell" style="flex: 1;">1u体育兔兔与统一的风格故事的发生发射点</div>
-                <div class="momo-table-cell" style="width: 100px">2大大苏打实打实大苏打实打实大苏打</div>
-                <div class="momo-table-cell" style="width: 100px">3更多梵蒂冈豆腐干豆腐干豆腐干恢复和规范</div>
-                <div class="momo-table-cell" style="width: 130px">4立刻就开会开会艰苦环境开会看见好看</div>
-              </div>
+              <div class="momo-table-tbody">${tbodyDom}</div>
             </div>
           </div>
-       </div>
-        <div class="momo-dialog-bottom">
-          <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
-          <button id="momo-id-import-confirm" class="momo-button momo-button-color-2" value="cancel">確認導入</button>
-        </div>
-      </form>
-    </dialog>
-  `
-  document.body.insertAdjacentHTML('afterend', dom)
-  const dialogDom = document.getElementById("momo-id-warehouse-dialog");
-  dialogDom.showModal();
+          <div class="momo-dialog-bottom">
+            <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
+            <button id="momo-id-import-confirm" class="momo-button momo-button-color-2" value="cancel">確認導入</button>
+          </div>
+        </form>
+      </dialog>
+    `
+      document.body.insertAdjacentHTML('afterend', dom)
+      const dialogDom = document.getElementById("momo-id-warehouse-dialog");
+      dialogDom.showModal();
 
-  const momoTableDom = document.getElementById('momo-id-table')
-  momoTableDom.addEventListener('click', collectWarehouseCheckedEvent)
+      const momoTableDom = document.getElementsByClassName('momo-class-table')[0]
+      momoTableDom.addEventListener('click', warehouseCheckedEvent)
 
-  // 导入
-  const confirmDom = document.getElementById('momo-id-import-confirm')
-  confirmDom.onclick = () => {
-    console.log('确认导入')
-  }
+      // 导入
+      const confirmDom = document.getElementById('momo-id-import-confirm')
+      confirmDom.onclick = () => {
+        console.log('确认导入')
+      }
+  })
 }
+
+
+
 
 // 开启关闭 tip
 function switchTip(id, className, type) {
   const tipDom = document.getElementById(id)
-  console.log(1111, id, className, type)
   if (type === 'show') {
     tipDom.classList.remove(`${className}-hidden`)
     tipDom.classList.add(`${className}-show`)
@@ -355,9 +448,102 @@ function switchTip(id, className, type) {
   }
 }
 
+// 单品采集 tip
+function singleCollectTip() {
+  const dom = `
+    <div id="momo-id-single-collect-tip" class="momo-collect-tip momo-single-collect-tip-hidden">
+      <div id="momo-id-single-collect-close" class="icon-close">${icon.close1}</div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="margin: 0 12px 0 0">當前頁支持單品採集，<br />請點擊搬家按鈕，採集商品</span>
+        <button id="momo-id-single-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+
+  // 关闭 tip
+  const closeDom = document.getElementById('momo-id-single-collect-close')
+  closeDom.onclick = () => switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'hidden')
+
+  // 一键搬家
+  const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
+  singleCollectStorage.onclick = async () => {
+    const params = url.cur.apiParams()
+    const res = await getCollectDetails(params)
+    res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
+    collectScuessDialog(res.length)
+  }
+}
+
+// 批量采集 tip1
+function batchCollectTip1() {
+  let rootDom = null
+  if (url.cur.targetId) {
+    rootDom = document.getElementById(url.cur.targetId)
+  } else if (url.cur.targetClass) {
+    rootDom = document.getElementsByClassName(url.cur.targetClass)[0]
+  }
+  if (rootDom) {
+    rootDom.classList.add(injectTarget.tableClass)
+    rootDom.removeEventListener('click', injectCheckboxEvent)
+  }
+
+  const dom = `
+    <div id="momo-id-batch-collect-tip-1" class="momo-collect-tip momo-batch-collect-tip-1-hidden">
+      <div id="momo-id-batch-collect-1-close" class="icon-close">${icon.close1}</div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="margin: 0 12px 0 0">當前頁支持批量採集，<br/>請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
+        <button id="momo-id-batch-collect-button" class="momo-button momo-button-color-1">採集</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+
+  // 关闭 tip
+  const closeDom1 = document.getElementById('momo-id-batch-collect-1-close')
+  closeDom1.onclick = () => switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
+
+  // 列表插入选择框
+  const batchCollectBt = document.getElementById('momo-id-batch-collect-button')
+  batchCollectBt.onclick = () => {
+    url.cur.injectDom()
+    switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
+    switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show')
+  }
+}
+
+// 批量采集 tip2
+function batchCollectTip2() {
+  const dom = `
+    <div id="momo-id-batch-collect-tip-2" class="momo-collect-tip momo-batch-collect-tip-2-hidden">
+      <div id="momo-id-batch-collect-2-close" class="icon-close">${icon.close1}</div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="margin: 0 12px 0 0">請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
+        <button id="momo-id-batch-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
+      </div>
+      <span class="icon-arrow">${icon.arrow}</span>
+    </div>
+  `
+  document.body.insertAdjacentHTML('afterend', dom)
+
+  // 关闭 tip
+  const closeDom2 = document.getElementById('momo-id-batch-collect-2-close')
+  closeDom2.onclick = () => switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
+
+  // 一键搬家
+  const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
+  batchCollectStorage.onclick = async () => {
+    const params = url.cur.apiParams()
+    const res = await getCollectDetails(params)
+    res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
+    collectScuessDialog(res.length)
+  }
+}
+
 // 采集浮窗
 function collectFloat() {
-
   const dom = `
     <div class="momo-collect-float">
       <div id="momo-id-float-content" class="momo-collect-float-content">
@@ -390,143 +576,58 @@ function collectFloat() {
     collectWarehouse()
   }
 
-  // 单品采集
+  // 采集 tips
   const collectBt = document.getElementById('momo-id-open-collect')
   collectBt.onclick = () => {
-    const type = checkCollectType()
-    switch(type) {
+    switch(url.cur.type) {
       case 'single':
         switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'show')
         break
       case 'batch':
-        const checkDom = document.getElementById('momo-xiapi-id-all-checkbox')
+        const checkDom = document.getElementById(injectTarget.allCheckboxId)
         checkDom ? switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show') : switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
         break
       default:
         console.log('类型检测出错')
     }
-    
-  }
-
-
-  //   console.log(11111, type, window.location.href, localStorage.getItem("initConfig"))
-  
+  }  
 }
 
-// 检查单品采集和批量采集
-function checkCollectType() {
-  if (window.location.href.startsWith('https://seller.shopee.cn/portal/product/mtsku/list')) {
-    // 虾皮全球商品列表
-    return 'batch'
-  } else if(window.location.href.match(/https:\/\/seller.shopee.cn\/portal\/product\/mtsku\/[0-9]*/)){
-    // 虾皮全球商品详情
-    return 'single'
+
+
+// 初始化
+const timerId = setInterval(() => {
+  if (!url.cur) {
+    url.init()
+    url.initNum += 1
+    url.initNum > 10 && clearInterval(timerId)
+    console.log(11111, url)
+    return
   }
-  throw new Error('页面类型检测出错');
-}
-
-// 单品采集 tip
-function singleCollectTip() {
-  const dom = `
-    <div id="momo-id-single-collect-tip" class="momo-collect-tip momo-single-collect-tip-hidden">
-      <div id="momo-id-single-collect-close" class="icon-close">${icon.close1}</div>
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="margin: 0 12px 0 0">當前頁支持單品採集，<br />請點擊搬家按鈕，採集商品</span>
-        <button id="momo-id-single-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
-      </div>
-      <span class="icon-arrow">${icon.arrow}</span>
-    </div>
-  `
-  document.body.insertAdjacentHTML('afterend', dom)
-
-  // 关闭 tip
-  const closeDom = document.getElementById('momo-id-single-collect-close')
-  closeDom.onclick = () => switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'hidden')
-
-  // 一键搬家
-  const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
-  singleCollectStorage.onclick = async () => {
-    const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace('SPC_CDS=', '').replace(';', '')
-    const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
-    const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0].replace('cnsc_shop_id=', '')
-    const res = await collectStorage([`SPC_CDS=${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`])
-    res.forEach(i => storage.put({id: i.data.mtsku_item_id, value: i.data}))
-    collectScuessDialog(res.length)
-  }
-}
-
-// 批量采集 tip1
-function batchCollectTip1() {
-  const collectCheckedEvent = (e) => checkedEvent(e, 'momo-xiapi-id-all-checkbox', 'momo-xiapi-id-collect-table', 'momo-checkbox')
-  const xiapiTableDom = document.getElementsByClassName('HotList-list')[0]
-  xiapiTableDom.id = "momo-xiapi-id-collect-table"
-  xiapiTableDom.removeEventListener('click', collectCheckedEvent)
-  const dom = `
-    <div id="momo-id-batch-collect-tip-1" class="momo-collect-tip momo-batch-collect-tip-1-hidden">
-      <div id="momo-id-batch-collect-1-close" class="icon-close">${icon.close1}</div>
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="margin: 0 12px 0 0">當前頁支持批量採集，<br/>請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
-        <button id="momo-id-batch-collect-button" class="momo-button momo-button-color-1">採集</button>
-      </div>
-      <span class="icon-arrow">${icon.arrow}</span>
-    </div>
-  `
-  document.body.insertAdjacentHTML('afterend', dom)
-
-  // 关闭 tip
-  const closeDom1 = document.getElementById('momo-id-batch-collect-1-close')
-  closeDom1.onclick = () => switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
-
-  // 列表插入选择框
-  const batchCollectBt = document.getElementById('momo-id-batch-collect-button')
-  batchCollectBt.onclick = () => {
-    xiapiTableDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="momo-xiapi-id-all-checkbox" class="momo-all-checkbox" />`)
-
-    const xiapiTableBodyItemDoms = xiapiTableDom.getElementsByClassName('HotItem')
-    for (const i of xiapiTableBodyItemDoms) {
-      i.insertAdjacentHTML('afterbegin', `<input type="checkbox" class="momo-checkbox" />`)
+  if (
+    (url.cur.noTarget) ||
+    (url.cur.targetId && document.getElementById(url.cur.targetId)) ||
+    (url.cur.targetClass && document.getElementsByClassName(url.cur.targetClass)[0])
+  ) {
+    collectFloat()
+    switch(url.cur.type) {
+      case 'single':
+        singleCollectTip()
+        break
+      case 'batch':
+        batchCollectTip1()
+        batchCollectTip2()
+        break
+      default:
+        clearInterval(timerId)
+        throw new Error('采集初始化出错');
     }
-
-    xiapiTableDom.addEventListener('click', collectCheckedEvent)
-    switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
-    switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show')
+    clearInterval(timerId)
   }
-}
+}, 1000)
 
-// 批量采集 tip2
-function batchCollectTip2() {
-  const dom = `
-    <div id="momo-id-batch-collect-tip-2" class="momo-collect-tip momo-batch-collect-tip-2-hidden">
-      <div id="momo-id-batch-collect-2-close" class="icon-close">${icon.close1}</div>
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="margin: 0 12px 0 0">請<span style="color: #DC3545">勾選商品</span>後，再點擊搬家按鈕</span>
-        <button id="momo-id-batch-collect-storage" class="momo-button momo-button-color-1">一鍵搬家</button>
-      </div>
-      <span class="icon-arrow">${icon.arrow}</span>
-    </div>
-  `
-  document.body.insertAdjacentHTML('afterend', dom)
 
-  // 关闭 tip
-  const closeDom2 = document.getElementById('momo-id-batch-collect-2-close')
-  closeDom2.onclick = () => switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
 
-  // 一键搬家
-  const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
-  batchCollectStorage.onclick = () => {
-  }
-}
-
-collectFloat()
-singleCollectTip()
-// batchCollectTip1()
-// batchCollectTip2()
-
-// (async () => {
-//   console.log('内容启动运行');
-//   collectDialog()
-  
-// })();
 
 // 与插件通信
 chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
