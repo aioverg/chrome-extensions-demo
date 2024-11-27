@@ -37,3 +37,12 @@ chrome.runtime.onInstalled.addListener(async () => {
 chrome.tabs.onActivated.addListener((calb) => {
   chrome.action.setBadgeText({ text: 'ON' }); // 增加文字
 })
+
+
+// 监听 url 地址改变
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status !== 'complete') {
+    return
+  }
+  chrome.tabs.sendMessage(tabId, {type: 'urlChange', url: tab.url})
+})

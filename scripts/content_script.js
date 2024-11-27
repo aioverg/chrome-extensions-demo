@@ -493,16 +493,7 @@ function singleCollectTip() {
 // 批量采集 tip1
 function batchCollectTip1() {
   let rootDom = null
-  if (url.cur.targetId) {
-    rootDom = document.getElementById(url.cur.targetId)
-  } else if (url.cur.targetClass) {
-    rootDom = document.getElementsByClassName(url.cur.targetClass)[0]
-  }
-  if (rootDom) {
-    rootDom.classList.add(injectTarget.tableClass)
-    rootDom.removeEventListener('click', injectCheckboxEvent)
-  }
-
+  let curRootDom = null
   const dom = `
     <div id="momo-id-batch-collect-tip-1" class="momo-collect-tip momo-batch-collect-tip-1-hidden">
       <div id="momo-id-batch-collect-1-close" class="icon-close">${icon.close1}</div>
@@ -522,6 +513,19 @@ function batchCollectTip1() {
   // 列表插入选择框
   const batchCollectBt = document.getElementById('momo-id-batch-collect-button')
   batchCollectBt.onclick = () => {
+    if (url.cur.targetId) {
+      curRootDom = document.getElementById(url.cur.targetId)
+    } else if (url.cur.targetClass) {
+      curRootDom = document.getElementsByClassName(url.cur.targetClass)[0]
+    }
+    if (!curRootDom) {
+      throw new Error('列表插入 checkbox 出错')
+    }
+    if (!curRootDom.classList.contains(injectTarget.tableClass)) {
+      rootDom && (rootDom.removeEventListener('click', injectCheckboxEvent))
+      rootDom = curRootDom
+      rootDom.classList.add(injectTarget.tableClass)
+    }
     url.cur.injectDom()
     switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
     switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show')
@@ -564,7 +568,7 @@ function batchCollectTip2() {
 // 采集浮窗
 function collectFloat() {
   const dom = `
-    <div class="momo-collect-float">
+    <div class="momo-collect-float" id="momo-id-collect-float">
       <div id="momo-id-float-content" class="momo-collect-float-content">
         <div id="momo-id-open-warehouse">${icon.warehouse}</div>
 
@@ -612,63 +616,51 @@ function collectFloat() {
   }  
 }
 
-
-
-// 初始化
-const timerId = setInterval(() => {
-  if (!url.cur) {
-    url.init()
-    url.initNum += 1
-    url.initNum > 10 && clearInterval(timerId)
-    console.log(11111, url)
-    return
-  }
-  if (
-    (url.cur.noTarget) ||
-    (url.cur.targetId && document.getElementById(url.cur.targetId)) ||
-    (url.cur.targetClass && document.getElementsByClassName(url.cur.targetClass)[0])
-  ) {
-    collectFloat()
-    switch(url.cur.type) {
-      case 'single':
-        singleCollectTip()
-        break
-      case 'batch':
-        batchCollectTip1()
-        batchCollectTip2()
-        break
-      default:
-        clearInterval(timerId)
-        throw new Error('采集初始化出错');
-    }
-    clearInterval(timerId)
-  }
-}, 1000)
+collectFloat()
+singleCollectTip()
+batchCollectTip1()
+batchCollectTip2()
+url.init()
 
 
 // 接收插件的信息并回复
 chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
-  if (sender.tab) {
-    console.log('不是从插件来的消息')
-    return
+  switch(res.type) {
+    case 'urlChange':
+      let usedPage = false
+      for (const i of url.list) {
+        if(res.url.match(i.path)){
+          usedPage = true
+          break
+        }
+      }
+      const collectFloatDom = document.getElementById('momo-id-collect-float')
+      if (usedPage) {
+        collectFloatDom && collectFloatDom.classList.remove('momo-collect-float-hidden')
+      } else {
+        collectFloatDom && collectFloatDom.classList.add('momo-collect-float-hidden')
+      }
+      
+      console.log('==============', usedPage)
+      break
+    default:
+      console.log('不能处理此消息', res)
   }
-
-  console.log('消息内容', res)
-  sendRes('回复消息')
+  // sendRes('回复消息')
 
   // 回复异步消息
-  if (res.type === "CollectData") {
-    // 请求数据
-    const getData = async () => {
-      const fetchRes = await fetch('/api/v4/me?include=is_realname,ad_type,available_message_types,default_notifications_count,follow_notifications_count,vote_thank_notifications_count,messages_count,email,account_status,is_bind_phone,following_question_count,is_force_renamed,renamed_fullname,is_destroy_waiting',{ method: 'get' })
-      const fetcData = await fetchRes.json()
-      return Promise.resolve(fetcData)
-    }
+  // if (res.type === "CollectData") {
+  //   // 请求数据
+  //   const getData = async () => {
+  //     const fetchRes = await fetch('/api/v4/me?include=is_realname,ad_type,available_message_types,default_notifications_count,follow_notifications_count,vote_thank_notifications_count,messages_count,email,account_status,is_bind_phone,following_question_count,is_force_renamed,renamed_fullname,is_destroy_waiting',{ method: 'get' })
+  //     const fetcData = await fetchRes.json()
+  //     return Promise.resolve(fetcData)
+  //   }
 
-    getData().then(res => {
-      sendRes(res)
-    })
+  //   getData().then(res => {
+  //     sendRes(res)
+  //   })
 
-    return true
-  }
+  //   return true
+  // }
 })

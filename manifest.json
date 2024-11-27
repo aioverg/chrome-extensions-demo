@@ -9,16 +9,13 @@
       "16": "icons/gray_16.png"
     }
   },
-  "permissions": ["activeTab", "scripting", "declarativeContent"],
+  "permissions": ["activeTab", "tabs", "scripting", "declarativeContent"],
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],
       "css": ["styles/content_script.css"],
       "matches": [
-        "https://www.zhihu.com/*",
-        "https://www.baidu.com/*",
-        "https://www.mim.zone/*",
-        "https://seller.shopee.cn/portal/product/mtsku/*"
+        "https://seller.shopee.cn/*"
       ]
     }
   ],

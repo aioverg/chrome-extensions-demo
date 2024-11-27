@@ -10,6 +10,10 @@
   z-index: 9999;
 }
 
+.momo-collect-float-hidden {
+  display: none;
+}
+
 .momo-collect-float .momo-collect-float-content {
   height: 0;
   margin-bottom: 12px;
