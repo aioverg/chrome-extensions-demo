@@ -200,7 +200,10 @@ const url = {
         const params = []
         const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
         const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-        const checkBoxDom = document.getElementsByClassName(injectTarget.tableClass)[0].getElementsByClassName(injectTarget.checkboxClass)
+        const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+        if (!tableDom) { return false }
+        const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
+        if (!checkBoxDom.length) { return false }
         for (const i of checkBoxDom) {
           if (i.checked) {
             params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
@@ -547,6 +550,11 @@ function batchCollectTip2() {
   const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
   batchCollectStorage.onclick = async () => {
     const params = url.cur.apiParams()
+    if (!params) {
+      switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
+      switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
+      return
+    }
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
     collectScuessDialog(res.length)
