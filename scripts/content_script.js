@@ -99,9 +99,10 @@ const api = {
     const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
     const resData = await response.json()
     const __affix__ = {
+      id: resData.data.mtsku_item_id,
+      name: resData.data.name,
       price: [0, 0],
       stock: 0,
-      id: resData.data.mtsku_item_id,
     }
     for (const i of resData.data.model_list) {
       __affix__.stock += i.stock_detail.total_available_stock
@@ -125,9 +126,10 @@ const api = {
     const response = await fetch(`https://seller.shopee.cn/api/v3/product/get_product_info?${params}`,{ method: 'get' })
     const resData = await response.json()
     const __affix__ = {
+      id: resData.data.product_info.id,
+      name: resData.data.product_info.name,
       price: [0, 0],
       stock: 0,
-      id: resData.data.product_info.id,
     }
     for (const i of resData.data.product_info.model_list) {
       __affix__.stock += i.stock_detail.total_available_stock
@@ -211,109 +213,122 @@ function warehouseCheckedEvent (e) {
   checkedEvent(e, 'momo-id-all-checkbox', 'momo-class-table', 'momo-checkbox')
 }
 
-// 链接列表
-const url = {
-  cur: '',
-  initNum: 0,
+// 采集站点列表
+const web = {
+  curPage: '',
+  curWeb: '',
   list: [
-    { // shopee 全球商品列表
-      path: /portal\/product\/mtsku\/list/,
-      targetId: 'mtsku-list',
-      type: 'batch',
-      apiName: 'shopeeDetails',
-      apiParams: () => {
-        const params = []
-        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-        const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
-        if (!tableDom) { return false }
-        const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
-        if (!checkBoxDom.length) { return false }
-        for (const i of checkBoxDom) {
-          if (i.checked) {
-            params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+    {
+      name: 'shopee',
+      href: 'https://seller.shopee.cn/',
+      storageNames: [], // 仓库名称
+      pages: [ // 采集页面列表
+        { // shopee 全球商品列表
+          path: /portal\/product\/mtsku\/list/,
+          targetId: 'mtsku-list',
+          type: 'batch',
+          apiName: 'shopeeDetails',
+          apiParams: () => {
+            const params = []
+            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+            if (!tableDom) { return false }
+            const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
+            if (!checkBoxDom.length) { return false }
+            for (const i of checkBoxDom) {
+              if (i.checked) {
+                params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+              }
+            }
+            return params
+          },
+          injectDom: () => {
+            const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+            if (rootDom) {
+              const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
+              theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
+        
+              const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+              for (const i of tbodyTrDoms) {
+                const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
+                i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+              }
+            }
+            rootDom.addEventListener('click', injectCheckboxEvent)
           }
-        }
-        return params
-      },
-      injectDom: () => {
-        const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
-        if (rootDom) {
-          const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
-          theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
-    
-          const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
-          for (const i of tbodyTrDoms) {
-            const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
-            i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+        },
+        { // shopee 全球商品列表详情
+          path: /portal\/product\/mtsku\/[0-9]+/,
+          type: 'single',
+          apiName: 'shopeeDetails',
+          apiParams: () => {
+            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+            const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
+            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            return [`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`]
           }
-        }
-        rootDom.addEventListener('click', injectCheckboxEvent)
-      }
-    },
-    { // shopee 全球商品列表详情
-      path: /portal\/product\/mtsku\/[0-9]+/,
-      type: 'single',
-      apiName: 'shopeeDetails',
-      apiParams: () => {
-        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-        const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
-        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-        return [`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`]
-      }
-    },
-    { // shopee 店铺商品列表
-      path: /portal\/product\/list\/all/,
-      targetClass: 'product-list-container',
-      type: 'batch',
-      apiName: 'productDetails',
-      injectDom: () => {
-        const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
-        if (rootDom) {
-          const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
-          theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
-    
-          const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
-          for (const i of tbodyTrDoms) {
-            const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
-            i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+        },
+        { // shopee 店铺商品列表
+          path: /portal\/product\/list\/all/,
+          targetClass: 'product-list-container',
+          type: 'batch',
+          apiName: 'productDetails',
+          injectDom: () => {
+            const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+            if (rootDom) {
+              const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
+              theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
+        
+              const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+              for (const i of tbodyTrDoms) {
+                const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
+                i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+              }
+            }
+            rootDom.addEventListener('click', injectCheckboxEvent)
+          },
+          apiParams: () => {
+            const params = []
+            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+            if (!tableDom) { return false }
+            const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
+            if (!checkBoxDom.length) { return false }
+            for (const i of checkBoxDom) {
+              if (i.checked) {
+                params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+              }
+            }
+            return params
+          },
+        },
+        { // shopee 店铺商品列表详情
+          path: /portal\/product\/[0-9]+/,
+          type: 'single',
+          apiName: 'productDetails',
+          apiParams: () => {
+            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+            const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
+            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            return [`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`]
           }
-        }
-        rootDom.addEventListener('click', injectCheckboxEvent)
-      },
-      apiParams: () => {
-        const params = []
-        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-        const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
-        if (!tableDom) { return false }
-        const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
-        if (!checkBoxDom.length) { return false }
-        for (const i of checkBoxDom) {
-          if (i.checked) {
-            params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
-          }
-        }
-        return params
-      },
-    },
-    { // shopee 店铺商品列表详情
-      path: /portal\/product\/[0-9]+/,
-      type: 'single',
-      apiName: 'productDetails',
-      apiParams: () => {
-        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-        const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
-        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-        return [`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`]
-      }
-    },
+        },
+      ]
+    }
   ],
   init: () => {
     const href = window.location.href
-    for (const i of url.list) {
+    for (const i of web.list) {
+      if (window.location.href.startsWith(i.href)) {
+        web.curWeb = i
+        break
+      }
+    }
+    for (const i of web.curWeb.pages) {
       if(href.match(i.path)) {
-        url.cur = i
+        web.curPage = i
         break
       }
     }
@@ -324,7 +339,7 @@ const url = {
 async function getCollectDetails(params=[]) {
   const promiseList = []
   for (const i of params) {
-    promiseList.push(api[url.cur.apiName](i))
+    promiseList.push(api[web.curPage.apiName](i))
   }
   const res = await Promise.all(promiseList)
 
@@ -455,7 +470,7 @@ function collectWarehouse() {
         <div class="momo-table-cell" style="48px">
           <input type="checkbox" class="momo-checkbox" data-index=${j} />
         </div>
-        <div class="momo-table-cell" style="flex: 1;">${i.value.data.name}</div>
+        <div class="momo-table-cell" style="flex: 1;">${i.value.__affix__.name}</div>
         <div class="momo-table-cell" style="width: 150px">${i.value.__affix__.price[0].toFixed(2)}${i.value.__affix__.price[1] ? ' - ' + i.value.__affix__.price[1].toFixed(2) : ''}</div>
         <div class="momo-table-cell" style="width: 100px">${i.value.__affix__.stock}</div>
         <div class="momo-table-cell" style="width: 130px">${i.value.__affix__.isImport ? '是' : '否'}</div>
@@ -553,7 +568,7 @@ function singleCollectTip() {
   // 一键搬家
   const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
   singleCollectStorage.onclick = async () => {
-    const params = url.cur.apiParams()
+    const params = web.curPage.apiParams()
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
     collectScuessDialog(res.length)
@@ -583,10 +598,10 @@ function batchCollectTip1() {
   // 列表插入选择框
   const batchCollectBt = document.getElementById('momo-id-batch-collect-button')
   batchCollectBt.onclick = () => {
-    if (url.cur.targetId) {
-      curRootDom = document.getElementById(url.cur.targetId)
-    } else if (url.cur.targetClass) {
-      curRootDom = document.getElementsByClassName(url.cur.targetClass)[0]
+    if (web.curPage.targetId) {
+      curRootDom = document.getElementById(web.curPage.targetId)
+    } else if (web.curPage.targetClass) {
+      curRootDom = document.getElementsByClassName(web.curPage.targetClass)[0]
     }
     if (!curRootDom) {
       throw new Error('列表插入 checkbox 出错')
@@ -596,7 +611,7 @@ function batchCollectTip1() {
       rootDom = curRootDom
       rootDom.classList.add(injectTarget.tableClass)
     }
-    url.cur.injectDom()
+    web.curPage.injectDom()
     switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
     switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show')
   }
@@ -623,7 +638,7 @@ function batchCollectTip2() {
   // 一键搬家
   const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
   batchCollectStorage.onclick = async () => {
-    const params = url.cur.apiParams()
+    const params = web.curPage.apiParams()
     if (!params) {
       switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
       switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
@@ -672,7 +687,7 @@ function collectFloat() {
   // 采集 tips
   const collectBt = document.getElementById('momo-id-open-collect')
   collectBt.onclick = () => {
-    switch(url.cur.type) {
+    switch(web.curPage.type) {
       case 'single':
         switchTip('momo-id-single-collect-tip', 'momo-single-collect-tip', 'show')
         break
@@ -690,7 +705,7 @@ collectFloat()
 singleCollectTip()
 batchCollectTip1()
 batchCollectTip2()
-url.init()
+web.init()
 
 
 // 接收插件的信息并回复
@@ -698,9 +713,10 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
   switch(res.type) {
     case 'urlChange':
       let usedPage = false
-      for (const i of url.list) {
+      for (const i of web.curWeb.pages) {
         if(res.url.match(i.path)){
           usedPage = true
+          web.curPage = i
           break
         }
       }
