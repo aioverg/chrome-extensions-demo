@@ -377,10 +377,10 @@ function collectWarehouse() {
   destroyDom && destroyDom.remove()
 
   storage.getAll().onsuccess = (res => {
-    const tbodyDom = res.target.result.map(i => (`
+    const tbodyDom = res.target.result.map((i, j) => (`
       <div class="momo-table-tr">
         <div class="momo-table-cell" style="48px">
-          <input type="checkbox" class="momo-checkbox" data-id=${i.id} />
+          <input type="checkbox" class="momo-checkbox" data-index=${j} />
         </div>
         <div class="momo-table-cell" style="flex: 1;">${i.value.data.name}</div>
         <div class="momo-table-cell" style="width: 150px">${i.value.__affix__.price[0].toFixed(2)}${i.value.__affix__.price[1] ? ' - ' + i.value.__affix__.price[1].toFixed(2) : ''}</div>
@@ -408,7 +408,7 @@ function collectWarehouse() {
                   <div class="momo-table-cell" style="width: 130px">歷史是否已導入</div>
                 </div>
               </div>
-              <div class="momo-table-tbody">${tbodyDom}</div>
+              <div class="momo-table-tbody" id="momo-id-table-tbody">${tbodyDom}</div>
             </div>
           </div>
           <div class="momo-dialog-bottom">
@@ -428,7 +428,18 @@ function collectWarehouse() {
       // 导入
       const confirmDom = document.getElementById('momo-id-import-confirm')
       confirmDom.onclick = () => {
-        console.log('确认导入')
+        const data = []
+        const checkboxDoms = document.getElementById('momo-id-table-tbody').getElementsByClassName('momo-checkbox')
+        for (const i of checkboxDoms) {
+          i.checked && data.push(res.target.result[i.dataset.index].value.data)
+        }
+        // 向插件发送信息并接受回复
+        chrome.runtime.sendMessage({
+          type: 'in',
+          data: data,
+        }, res => {
+          alert(res)
+        })
       }
   })
 }
@@ -627,22 +638,17 @@ const timerId = setInterval(() => {
 }, 1000)
 
 
-
-
-// 与插件通信
+// 接收插件的信息并回复
 chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
-  console.log('弹出页过来的消息', sender.tab ? 'fomr a content script' + sender.tab.url : 'from the 插件')
-
-  // 选择数据
-  if (res.type === "SelectData") {
-    const doms = document.getElementsByClassName('HotItem')
-    for(const i of doms) {
-      i.insertAdjacentHTML('afterbegin', "<input type='checkbox' style='width:30px;height: 30px' class='momoCheck' value='1' />")
-    }
-    sendRes({num: doms.length})
+  if (sender.tab) {
+    console.log('不是从插件来的消息')
+    return
   }
 
-  // 采集数据
+  console.log('消息内容', res)
+  sendRes('回复消息')
+
+  // 回复异步消息
   if (res.type === "CollectData") {
     // 请求数据
     const getData = async () => {
@@ -651,11 +657,8 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
       return Promise.resolve(fetcData)
     }
 
-    // 或许选中的数据
-    const doms = document.getElementsByClassName('momoCheck')
-
-    getData().then(resData => {
-      sendRes({...resData, num: doms.length})
+    getData().then(res => {
+      sendRes(res)
     })
 
     return true

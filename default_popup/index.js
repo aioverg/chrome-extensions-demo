@@ -1,25 +1,3 @@
-// 选择数据
-const SelectDataButton = document.getElementById('SelectData')
-SelectDataButton.onclick = async () => {
-  // 获取当前激活的tab
-  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true})
-
-  const res = await chrome.tabs.sendMessage(tab.id, {type: 'SelectData'})
-
-  console.log('选择数据回传信息', res)
-}
-
-// 采集数据
-const CollectDataButton = document.getElementById('CollectData')
-CollectDataButton.onclick = async () => {
-  // 获取当前激活的tab
-  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true})
-
-  const res = await chrome.tabs.sendMessage(tab.id, {type: 'CollectData'})
-
-  console.log('采集数据回传信息', res)
-}
-
 // 登录状态
 const loginStatus = status => {
   const noLogonDoms = document.getElementsByClassName('noLogin')
@@ -93,4 +71,28 @@ logoutBt.onclick = logout
 const closeBt = document.getElementById('close')
 closeBt.onclick = () => {
   window.close()
+}
+
+// 消息监听
+chrome.runtime.onMessage.addListener((res, sender, sendResponse) => {
+  // 从 content.js 来的消息
+  if (sender.tab) {
+    // 商品导入
+    if (res.type === 'in') {
+      console.log('商品列表', res.data)
+      sendResponse('接收成功')
+    }
+  }
+})
+
+// 向 content 发送信息
+const sendContentMessage = async () => {
+  // 获取当前激活的tab
+  const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true})
+
+  // 发送信息
+  const res = await chrome.tabs.sendMessage(tab.id, {type: 'CollectData'})
+
+
+  console.log('接受的回复信息', res)
 }
