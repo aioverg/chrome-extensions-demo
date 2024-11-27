@@ -252,7 +252,7 @@ const url = {
       }
     },
     { // shopee 全球商品列表详情
-      path: /portal\/product\/mtsku\/[0-9]*/,
+      path: /portal\/product\/mtsku\/[0-9]+/,
       type: 'single',
       apiName: 'shopeeDetails',
       apiParams: () => {
@@ -298,7 +298,7 @@ const url = {
       },
     },
     { // shopee 店铺商品列表详情
-      path: /portal\/product\/[0-9]*/,
+      path: /portal\/product\/[0-9]+/,
       type: 'single',
       apiName: 'productDetails',
       apiParams: () => {
@@ -710,8 +710,6 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
       } else {
         collectFloatDom && collectFloatDom.classList.add('momo-collect-float-hidden')
       }
-      
-      console.log('==============', usedPage)
       break
     default:
       console.log('不能处理此消息', res)
