@@ -94,11 +94,10 @@ const icon = {
 
 // api 接口
 const api = {
-  // shopee 商品详情接口
+  // shopee 全球商品列表详情接口
   shopeeDetails: async (params) => {
     const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
     const resData = await response.json()
-    console.log(312312, resData)
     const __affix__ = {
       price: [0, 0],
       stock: 0,
@@ -117,6 +116,32 @@ const api = {
         __affix__.price = [+i.price_info.normal_price, __affix__.price[0]]
       } else {
         __affix__.price = [__affix__.price[0], +i.price_info.normal_price]
+      }
+    }
+    return Promise.resolve({__affix__, ...resData})
+  },
+  // shopee 店铺商品列表详情接口
+  productDetails: async (params) => {
+    const response = await fetch(`https://seller.shopee.cn/api/v3/product/get_product_info?${params}`,{ method: 'get' })
+    const resData = await response.json()
+    const __affix__ = {
+      price: [0, 0],
+      stock: 0,
+      id: resData.data.product_info.id,
+    }
+    for (const i of resData.data.product_info.model_list) {
+      __affix__.stock += i.stock_detail.total_available_stock
+      if (+i.price_info.input_normal_price == 0 ) {
+        continue
+      }
+      if (__affix__.price[0] === 0 || __affix__.price[0] === +i.price_info.input_normal_price) {
+        __affix__.price[0] = +i.price_info.input_normal_price
+        continue
+      }
+      if (__affix__.price[0] > +i.price_info.input_normal_price) {
+        __affix__.price = [+i.price_info.input_normal_price, __affix__.price[0]]
+      } else {
+        __affix__.price = [__affix__.price[0], +i.price_info.input_normal_price]
       }
     }
     return Promise.resolve({__affix__, ...resData})
@@ -226,9 +251,8 @@ const url = {
         rootDom.addEventListener('click', injectCheckboxEvent)
       }
     },
-    { // shopee 商品详情
+    { // shopee 全球商品列表详情
       path: /portal\/product\/mtsku\/[0-9]*/,
-      noTarget: true,
       type: 'single',
       apiName: 'shopeeDetails',
       apiParams: () => {
@@ -237,7 +261,53 @@ const url = {
         const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
         return [`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`]
       }
-    }
+    },
+    { // shopee 店铺商品列表
+      path: /portal\/product\/list\/all/,
+      targetClass: 'product-list-container',
+      type: 'batch',
+      apiName: 'productDetails',
+      injectDom: () => {
+        const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+        if (rootDom) {
+          const theadDom = rootDom.getElementsByTagName('thead')[0].getElementsByTagName('th')[0]
+          theadDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" id="${injectTarget.allCheckboxId}" class="momo-all-checkbox" />`)
+    
+          const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+          for (const i of tbodyTrDoms) {
+            const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
+            i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+          }
+        }
+        rootDom.addEventListener('click', injectCheckboxEvent)
+      },
+      apiParams: () => {
+        const params = []
+        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+        const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+        if (!tableDom) { return false }
+        const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
+        if (!checkBoxDom.length) { return false }
+        for (const i of checkBoxDom) {
+          if (i.checked) {
+            params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+          }
+        }
+        return params
+      },
+    },
+    { // shopee 店铺商品列表详情
+      path: /portal\/product\/[0-9]*/,
+      type: 'single',
+      apiName: 'productDetails',
+      apiParams: () => {
+        const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+        const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
+        const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+        return [`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`]
+      }
+    },
   ],
   init: () => {
     const href = window.location.href
