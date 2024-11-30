@@ -236,6 +236,15 @@
   padding: 0 24px;
 }
 
+.momo-table .momo-table-tbody::-webkit-scrollbar {
+  width: 5px;
+}
+
+.momo-table .momo-table-tbody::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: #f3f4f6;
+}
+
 .momo-table .momo-table-tr {
   width: 100%;
   display: flex;

@@ -213,10 +213,64 @@ function warehouseCheckedEvent (e) {
   checkedEvent(e, 'momo-id-all-checkbox', 'momo-class-table', 'momo-checkbox')
 }
 
+// 本地存储仓库
+class DBStorage {
+  static db = null
+  constructor(storageName = web.curWeb.dbStorageName || "MoMoCollectDatabase", tableNames = web.curWeb.dbTableNames || ['product']){
+    const request = indexedDB.open(storageName);
+    request.onerror = () => {
+      console.log('打开失败')
+    }
+    request.onsuccess = e => {
+      this.db = e.target.result
+    }
+  
+    request.onupgradeneeded = function (e) {
+      const db = e.target.result;
+
+      for (const i of tableNames) {
+        const objectStore = db.createObjectStore(i, { keyPath: 'id', autoIncrement: false });
+        objectStore.createIndex('value', 'value', { unique: false });
+      }
+    };
+  }
+  // 增加数据
+  add(val) {
+    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).add(val)
+  }
+  // 插入或覆盖数据
+  put(val) {
+    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).put(val)
+  }
+  // 删除数据
+  delete(id) {
+    this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).delete(id)
+  }
+  // 获取全部数据
+  getAll() {
+    return this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).getAll()
+  }
+  // 更新数据
+  update(id, value) {
+    const objectStore = this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName)
+    const request = objectStore.get(id)
+    request.onsuccess = event => {
+      const data = event.target.result
+      data.value = value
+
+      const requestUpdate = objectStore.put(data)
+      requestUpdate.onsuccess = (event) => {
+        console.log('数据更新成功')
+      };
+    }
+  }
+}
+
 // 采集站点列表
 const web = {
   curPage: '',
   curWeb: '',
+  db: undefined,
   list: [
     {
       name: 'shopee',
@@ -337,6 +391,7 @@ const web = {
         break
       }
     }
+    web.db = new DBStorage()
   }
 }
 
@@ -350,61 +405,6 @@ async function getCollectDetails(params=[]) {
 
   return Promise.resolve(res)
 }
-
-// 本地存储仓库
-class DBStorage {
-  static db = null
-  constructor(storageName = web.curWeb.dbStorageName || "MoMoCollectDatabase", tableNames = web.curWeb.dbTableNames || ['product']){
-    const request = indexedDB.open(storageName);
-    request.onerror = () => {
-      console.log('打开失败')
-    }
-    request.onsuccess = e => {
-      this.db = e.target.result
-    }
-  
-    request.onupgradeneeded = function (e) {
-      const db = e.target.result;
-
-      for (const i of tableNames) {
-        const objectStore = db.createObjectStore(i, { keyPath: 'id', autoIncrement: false });
-        objectStore.createIndex('value', 'value', { unique: false });
-      }
-    };
-  }
-  // 增加数据
-  add(val) {
-    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).add(val)
-  }
-  // 插入或覆盖数据
-  put(val) {
-    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).put(val)
-  }
-  // 删除数据
-  delete(id) {
-    this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).delete(id)
-  }
-  // 获取全部数据
-  getAll() {
-    return this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).getAll()
-  }
-  // 更新数据
-  update(id, value) {
-    const objectStore = this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName)
-    const request = objectStore.get(id)
-    request.onsuccess = event => {
-      const data = event.target.result
-      data.value = value
-
-      const requestUpdate = objectStore.put(data)
-      requestUpdate.onsuccess = (event) => {
-        console.log('数据更新成功')
-      };
-    }
-  }
-}
-
-
 
 
 // 采集失败 dialog
@@ -523,7 +523,7 @@ function collectWarehouse() {
   const destroyDom = document.getElementById('momo-id-warehouse-dialog')
   destroyDom && destroyDom.remove()
 
-  storage.getAll().onsuccess = (res => {
+  web.db.getAll().onsuccess = (res => {
     const tbodyDom = res.target.result.map((i, j) => (`
       <div class="momo-table-tr">
         <div class="momo-table-cell" style="48px">
@@ -544,7 +544,7 @@ function collectWarehouse() {
           </div>
           <div style="width: 640px; padding: 24px 0; height: 472px;">
             <div class="momo-table momo-class-table">
-              <div class="momo-table-thead">
+              <div class="momo-table-thead" style="padding-right: ${res.target.result.length > 6 ? '29px' : '24px'}">
                 <div class="momo-table-tr">
                   <div class="momo-table-cell" style="48px">
                     <input type="checkbox" id="momo-id-all-checkbox" class="momo-all-checkbox" />
@@ -626,7 +626,7 @@ function singleCollectTip() {
   singleCollectStorage.onclick = async () => {
     const params = web.curPage.apiParams()
     const res = await getCollectDetails(params)
-    res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
+    res.forEach(i => web.db.put({id: i.__affix__.id, value: i}))
     collectResultDialog({type: 'collectScuess', num: res.length})
   }
 }
@@ -701,7 +701,7 @@ function batchCollectTip2() {
       return
     }
     const res = await getCollectDetails(params)
-    res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
+    res.forEach(i => web.db.put({id: i.__affix__.id, value: i}))
     collectResultDialog({type: 'collectScuess', num: res.length})
   }
 }
@@ -758,7 +758,6 @@ function collectFloat() {
 }
 
 web.init()
-const storage = new DBStorage()
 collectFloat()
 singleCollectTip()
 batchCollectTip1()
