@@ -1,42 +1,79 @@
-.default-button {
-  display: inline-block;
+* {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  display: flex;
   height: 40px;
+  padding: 0px 16px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  border: 0;
   cursor: pointer;
   font-size: 14px;
-  border: 0;
-  border-radius: 2px;
-  color: #fff;
-  background: #5e6999;
-
+  flex-shrink: 0;
+  user-select: none;
   position: relative;
   z-index: 1;
   box-shadow: 0 2px #00000004;
   transition: .3s;
 }
 
-.default-button:hover {
-  background: #5a81a1;
-}
-
-.default-button::after{
+button::after{
   content: '';
   inset: 0;
   position: absolute;
   z-index: -1;
   border-radius: inherit;
-  background: #5e6999;
   opacity: 0;
-  box-shadow: 0 0 0 8px #5e6999;
   transition: .3s;
-  
 }
 
-.default-button:active::after{
+button:active::after{
   z-index: -1;
-  background: #5e6999;
   opacity: 0.5;
   box-shadow: none;
   transition: 0s;
+}
+
+.button-color-1 {
+  background: #5E6999;
+  color: #FFFFFF;
+}
+
+.button-color-1:hover{
+  background: #707db5;
+}
+
+.button-color-1::after {
+  background: #707db5;
+  box-shadow: 0 0 0 8px #5E6999;
+}
+
+.button-color-1:active::after {
+  background: #5E6999;
+}
+
+.button-color-2 {
+  background: #F5F5F5;
+  color: #343A40;
+}
+
+.button-color-2:hover{
+  background: #edecec;
+}
+
+.button-color-2::after {
+  background: #edecec;
+  box-shadow: 0 0 0 8px #F5F5F5;
+}
+
+.button-color-2:active::after {
+  background: #F5F5F5;
 }
 
 .hidden {
@@ -45,4 +82,31 @@
 
 .show {
   display: block;
+}
+
+
+input {
+  outline: none;
+}
+
+input[type="input"]{
+  height: 30px;
+  padding: 5px 12px;
+  border: 1px solid #D2D5DA;
+  border-radius: 3px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  font-size: 14px;
+}
+
+input[type="input"]:hover {
+  border-color: #1890ff;
+}
+
+input[type="input"]:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px #e6f4ff;
+}
+
+input::placeholder {
+  color: #9CA3AF;
 }

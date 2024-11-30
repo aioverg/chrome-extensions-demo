@@ -59,6 +59,12 @@ document.addEventListener("DOMContentLoaded", async (event) => {
   }
 });
 
+// 取消
+const cancelBt = document.getElementById('cancel')
+cancelBt.onclick = () => {
+  window.close()
+}
+
 // 登录
 const loginBt = document.getElementById('login')
 loginBt.onclick = login

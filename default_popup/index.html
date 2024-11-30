@@ -7,8 +7,8 @@
     <style></style>
   </head>
   <body>
-    <div style="width: 340px; height: 168px; padding: 8px; display: flex; flex-direction: column;">
-      <div style="position: relative; padding-bottom: 34px;">
+    <div style="width: 308px; height: 168px; padding: 24px 16px 32px; display: flex; flex-direction: column;">
+      <div style="position: relative; padding-bottom: 12px;">
         <svg width="101" height="16" viewBox="0 0 101 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M28.8137 0H46.4018C47.7913 0 48.9157 1.12941 48.9249 2.52235V13.4871C48.9249 14.8706 47.7913 16 46.4018 16H28.8137C27.4242 16 26.2907 14.88 26.2907 13.4871V2.52235C26.2907 1.12941 27.4242 0 28.8137 0ZM43.1658 12.0094C43.8971 12.0094 44.4913 11.4165 44.4913 10.6824H44.4821V5.31765C44.4821 4.58353 43.8879 3.99059 43.1566 3.99059H32.0864C31.3551 3.99059 30.7609 4.58353 30.7609 5.31765V10.6824C30.7609 11.4165 31.3551 12.0094 32.0864 12.0094H43.1658Z" fill="#5E6999"/>
           <path fill-rule="evenodd" clip-rule="evenodd" d="M80.4444 0H98.0325C99.422 0 100.556 1.12941 100.556 2.52235V13.4871C100.556 14.8706 99.422 16 98.0325 16H80.4444C79.055 16 77.9306 14.8706 77.9306 13.4776V2.51294C77.9306 1.12941 79.055 0 80.4444 0ZM91.4964 13.7976C91.5604 13.8071 92.5385 13.7224 92.9316 13.6C94.8787 13.1953 96.5059 11.6141 96.515 8.64941C96.515 6.64471 94.6776 2.74824 88.754 2.17412C86.8891 2.46588 81.9802 4.36706 81.9802 8.78118C81.9802 10.2024 82.6932 11.5576 83.909 12.6965C84.7592 13.4965 85.9476 13.9859 85.7008 13.7506C85.3168 13.3741 85.198 12.5929 85.2894 12.0941C85.5453 10.7671 86.5875 10.3718 86.5875 10.3718C86.5875 10.3718 86.1395 13.28 90.5823 13.7412C90.8474 13.7788 91.4599 13.7976 91.4964 13.7976Z" fill="#5E6999"/>
@@ -16,23 +16,26 @@
           <path d="M72.6925 0H54.1537C52.7642 0 51.6399 1.12941 51.6399 2.51294V16H56.3477V4.70588H61.0647V16H65.7816V4.70588H70.4986V16H75.2156V2.51294C75.2064 1.12941 74.082 0 72.6925 0Z" fill="#5E6999"/>
         </svg>
         <span style="font-size: 16px; margin-left: 2px; position: relative; bottom: 3px;">小助手</span>
-        <span id="logout" class="login hidden" style="font-size: 14px; width: 80px; text-align: center; color: #5E6999; cursor: pointer; position: absolute; right: 0;">退出登錄</span>
+        <span id="logout" class="login hidden" style="font-size: 14px; width: 80px; text-align: center; color: #5E6999; cursor: pointer; position: absolute; right: 0; top: 0;">退出登錄</span>
       </div>
 
       <div class="noLogin hidden" style="flex: 1;">
         <div  style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-          <div style="font-size: 14px; ">使用momo店+賬號登錄，插件幫您快速搬家</div>
-          <div style="display: flex; justify-content: center;">
-            <button id="login" class="default-button" style="width: 96px;">登录</button>
+          <div style="font-size: 14px; margin-bottom: 24px;">使用momo店+賬號登錄，插件幫您快速搬家</div>
+          <input type="input" style="margin-bottom: 16px;" placeholder="请输入momo店+后台账号" />
+          <input type="input" placeholder="请输入momo店+后台密码" />
+          <div style="display: flex; justify-content: center; margin: 32px 0;">
+            <button id="cancel" class="button-color-2"style="width: 88px; margin-right: 12px;">取消</button>
+            <button id="login" class="button-color-1" style="width: 88px;">登录</button>
           </div>
         </div>
       </div>
 
       <div class="login hidden" style="flex: 1;">
         <div class="login" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-          <div style="font-size: 14px; line-height: 22px;">使用帮助：請登錄蝦皮後台，点击右下角浮标開始採集商品吧</div>
-          <div style="display: flex; justify-content: center;">
-            <button id="close" class="default-button" style="width: 88px;">我知道了</button>
+          <div style="font-size: 14px; line-height: 22px; margin: 12px 0 24px;">使用帮助：請登錄蝦皮後台，点击右下角浮标開始採集商品吧</div>
+          <div style="display: flex; justify-content: center; margin-bottom: 32px;">
+            <button id="close" class="button-color-1" style="width: 88px;">我知道了</button>
           </div>
         </div>
       </div>
