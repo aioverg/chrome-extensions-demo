@@ -445,7 +445,7 @@ function collectScuessDialog(num) {
           <span>中确认商品信息后，再上架</span>
         </div>
         <div class="momo-dialog-bottom">
-          <button class="momo-button momo-button-color-2" value="cancel">去查看已採集商品</button>
+          <button id="viewWarehouse" class="momo-button momo-button-color-2" value="cancel">去查看已採集商品</button>
         </div>
       </form>
     </dialog>
@@ -453,6 +453,9 @@ function collectScuessDialog(num) {
   document.body.insertAdjacentHTML('afterend', dom)
   const dialogDom = document.getElementById("collect-id-scuess-dialog");
   dialogDom.showModal();
+
+  const viewWarehouseBt = document.getElementById('viewWarehouse')
+  viewWarehouseBt.onclick = () => collectWarehouse()
 }
 
 // 采集仓库 dialog
@@ -531,8 +534,6 @@ function collectWarehouse() {
       }
   })
 }
-
-
 
 
 // 开启关闭 tip

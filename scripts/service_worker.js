@@ -41,7 +41,7 @@ chrome.tabs.onActivated.addListener((calb) => {
 
 // 监听 url 地址改变, 与 manifest.json 中 content_scripts 配置的一样
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (tab.url && tab.url.startsWith('https://seller.shopee.cn')) {
+  if (!tab.url || !tab.url.startsWith('https://seller.shopee.cn')) {
     return
   }
   if (changeInfo.status !== 'complete') {
