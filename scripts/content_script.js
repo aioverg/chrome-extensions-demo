@@ -401,8 +401,6 @@ class MoMoStorage {
 const storage = new MoMoStorage()
 
 
-
-
 // 采集失败 dialog
 function collectFailDialog() {
   const destroyDom = document.getElementById('momo-id-collect-fail-dialog')
@@ -428,34 +426,86 @@ function collectFailDialog() {
   dialogDom.showModal();
 }
 
-// 采集成功 dialog
-function collectScuessDialog(num) {
-  const destroyDom = document.getElementById('collect-id-scuess-dialog')
+// 采集结果 dialog
+function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
+  const destroyDom = document.getElementById('collect-id-result-dialog')
   destroyDom && destroyDom.remove()
+
+  const contentDom = {
+    collectFailed: {
+      title: '采集失败',
+      titleColor: '#343A40',
+      contentText: '系統異常，商品探集失敗，請重新探集',
+      btText: '我知道了',
+    },
+    collectScuess: {
+      title: '采集成功',
+      titleColor: '#343A40',
+      contentText: `本次共探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-探集商品庫」中查看已採集商品`,
+      btText: '去查看已采集商品庫',
+    },
+    collectSomeScuess: {
+      title: '部分采集成功',
+      titleColor: '#343A40',
+      contentText: `部分商品探集成功，本次成功探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-探集商品庫」中查看已探集商品`,
+      btText: '去查看已采集商品庫',
+    },
+    importFailed: {
+      title: '導入失敗',
+      titleColor: '#343A40',
+      contentText: '系统異常，商品導入失败，請重新導入',
+      btText: '我知道了',
+    },
+    importScuess: {
+      title: '导入成功',
+      titleColor: '#343A40',
+      contentText: `本次共導入 <span style="color: #5A72DB;">${val.num}</span> 個商品，已暂存商品，可到「商品管理-商品列表-暫存-搬家暫存」中確認商品信息後，再上架`,
+      btText: '去查看已采集商品庫',
+    },
+    importSomeScuess: {
+      title: '导入成功',
+      titleColor: '#343A40',
+      contentText: `部分商品導入失败，本次成功導入 <span style="color: #5A72DB;">${val.num}</span> 個商品，已暂存商品，可到「商品管理-商品列表-暫存-搬家暫存」中確認商品信息後，再上架`,
+      btText: '去查看已采集商品庫',
+    }
+  }
+
   const dom = `
-    <dialog id="collect-id-scuess-dialog" class="momo-dialog">
-      <form method="dialog">
+    <dialog id="collect-id-result-dialog" class="momo-dialog">
+      <form method="dialog" style="width: 480px;">
         <div class="momo-dialog-head">
-          <span style="color: #343A40;">采集成功</span>
+          <span style="color: ${contentDom[val.type].titleColor};">${contentDom[val.type].title}</span>
           <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
         </div>
-        <div style="padding: 24px 24px 36px 24px; color: #111827; width: 420px;">
-          <span>本次共采集${num}个商品，已暂存商品，可到</span>
-          <span style="color: #5E6999;">【商品管理-商品列表-暂存-搬家暂存】</span>
-          <span>中确认商品信息后，再上架</span>
-        </div>
+        <div style="padding: 24px 24px 36px 24px; color: #111827;">${contentDom[val.type].contentText}</div>
         <div class="momo-dialog-bottom">
-          <button id="viewWarehouse" class="momo-button momo-button-color-2" value="cancel">去查看已採集商品</button>
+          <button id="viewWarehouse" class="momo-button momo-button-color-2" value="cancel">${contentDom[val.type].btText}</button>
         </div>
       </form>
     </dialog>
   `
   document.body.insertAdjacentHTML('afterend', dom)
-  const dialogDom = document.getElementById("collect-id-scuess-dialog");
+  const dialogDom = document.getElementById("collect-id-result-dialog");
   dialogDom.showModal();
 
   const viewWarehouseBt = document.getElementById('viewWarehouse')
-  viewWarehouseBt.onclick = () => collectWarehouse()
+  viewWarehouseBt.onclick = () => {
+    switch (val.type) {
+      case 'collectFailed':
+      case 'importFailed':
+        break;
+      case 'collectScuess':
+      case 'collectSomeScuess':
+        collectWarehouse()
+        break;
+      case 'importScuess':
+      case 'importSomeScuess':
+        break;
+      default:
+        console.warn('未知类型')
+    }
+    
+  }
 }
 
 // 采集仓库 dialog
@@ -572,7 +622,7 @@ function singleCollectTip() {
     const params = web.curPage.apiParams()
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
-    collectScuessDialog(res.length)
+    collectResultDialog(res.length)
   }
 }
 
@@ -647,7 +697,7 @@ function batchCollectTip2() {
     }
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
-    collectScuessDialog(res.length)
+    collectResultDialog(res.length)
   }
 }
 
