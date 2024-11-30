@@ -340,9 +340,6 @@ const web = {
   }
 }
 
-web.init()
-const storage = new DBStorage()
-
 // 获取采集的商品详情数据
 async function getCollectDetails(params=[]) {
   const promiseList = []
@@ -406,6 +403,9 @@ class DBStorage {
     }
   }
 }
+
+
+
 
 // 采集失败 dialog
 function collectFailDialog() {
@@ -757,6 +757,8 @@ function collectFloat() {
   }  
 }
 
+web.init()
+const storage = new DBStorage()
 collectFloat()
 singleCollectTip()
 batchCollectTip1()
