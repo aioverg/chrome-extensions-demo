@@ -221,12 +221,14 @@ const web = {
     {
       name: 'shopee',
       href: 'https://seller.shopee.cn/',
-      storageNames: [], // 仓库名称
+      dbStorageName: 'MoMoCollectDatabase', // 仓库名称
+      dbTableNames: ['product'],
       pages: [ // 采集页面列表
         { // shopee 全球商品列表
           path: /portal\/product\/mtsku\/list/,
           targetId: 'mtsku-list',
           type: 'batch',
+          dbTableName: 'product',
           apiName: 'shopeeDetails',
           apiParams: () => {
             const params = []
@@ -262,6 +264,7 @@ const web = {
           path: /portal\/product\/mtsku\/[0-9]+/,
           type: 'single',
           apiName: 'shopeeDetails',
+          dbTableName: 'product',
           apiParams: () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
@@ -274,6 +277,7 @@ const web = {
           targetClass: 'product-list-container',
           type: 'batch',
           apiName: 'productDetails',
+          dbTableName: 'product',
           injectDom: () => {
             const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
             if (rootDom) {
@@ -308,6 +312,7 @@ const web = {
           path: /portal\/product\/[0-9]+/,
           type: 'single',
           apiName: 'productDetails',
+          dbTableName: 'product',
           apiParams: () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
@@ -335,6 +340,9 @@ const web = {
   }
 }
 
+web.init()
+const storage = new DBStorage()
+
 // 获取采集的商品详情数据
 async function getCollectDetails(params=[]) {
   const promiseList = []
@@ -349,8 +357,8 @@ async function getCollectDetails(params=[]) {
 // 本地存储仓库
 class DBStorage {
   static db = null
-  constructor(name = "ShopeeCollectDatabase"){
-    const request = indexedDB.open(name);
+  constructor(storageName = web.curWeb.dbStorageName || "MoMoCollectDatabase", tableNames = web.curWeb.dbTableNames || ['product']){
+    const request = indexedDB.open(storageName);
     request.onerror = () => {
       console.log('打开失败')
     }
@@ -361,30 +369,31 @@ class DBStorage {
     request.onupgradeneeded = function (e) {
       const db = e.target.result;
 
-      let objectStore = db.createObjectStore('product', { keyPath: 'id', autoIncrement: false });
-  
-      objectStore.createIndex('value', 'value', { unique: false });
+      for (const i of tableNames) {
+        const objectStore = db.createObjectStore(i, { keyPath: 'id', autoIncrement: false });
+        objectStore.createIndex('value', 'value', { unique: false });
+      }
     };
   }
   // 增加数据
   add(val) {
-    this.db.transaction(['product'], 'readwrite').objectStore('product').add(val)
+    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).add(val)
   }
   // 插入或覆盖数据
   put(val) {
-    this.db.transaction(['product'], 'readwrite').objectStore('product').put(val)
+    this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName).put(val)
   }
   // 删除数据
   delete(id) {
-    this.db.transaction(['product']).objectStore('product').delete(id)
+    this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).delete(id)
   }
   // 获取全部数据
   getAll() {
-    return this.db.transaction(['product']).objectStore('product').getAll()
+    return this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).getAll()
   }
   // 更新数据
   update(id, value) {
-    const objectStore = this.db.transaction(['product'], 'readwrite').objectStore('product')
+    const objectStore = this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName)
     const request = objectStore.get(id)
     request.onsuccess = event => {
       const data = event.target.result
@@ -397,9 +406,6 @@ class DBStorage {
     }
   }
 }
-
-const storage = new DBStorage()
-
 
 // 采集失败 dialog
 function collectFailDialog() {
@@ -585,7 +591,6 @@ function collectWarehouse() {
   })
 }
 
-
 // 开启关闭 tip
 function switchTip(id, className, type) {
   const tipDom = document.getElementById(id)
@@ -622,7 +627,7 @@ function singleCollectTip() {
     const params = web.curPage.apiParams()
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
-    collectResultDialog(res.length)
+    collectResultDialog({type: 'collectScuess', num: res.length})
   }
 }
 
@@ -697,7 +702,7 @@ function batchCollectTip2() {
     }
     const res = await getCollectDetails(params)
     res.forEach(i => storage.put({id: i.__affix__.id, value: i}))
-    collectResultDialog(res.length)
+    collectResultDialog({type: 'collectScuess', num: res.length})
   }
 }
 
@@ -756,7 +761,6 @@ collectFloat()
 singleCollectTip()
 batchCollectTip1()
 batchCollectTip2()
-web.init()
 
 
 // 接收插件的信息并回复
