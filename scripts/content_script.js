@@ -347,7 +347,7 @@ async function getCollectDetails(params=[]) {
 }
 
 // 本地存储仓库
-class MoMoStorage {
+class DBStorage {
   static db = null
   constructor(name = "ShopeeCollectDatabase"){
     const request = indexedDB.open(name);
@@ -398,7 +398,7 @@ class MoMoStorage {
   }
 }
 
-const storage = new MoMoStorage()
+const storage = new DBStorage()
 
 
 // 采集失败 dialog
