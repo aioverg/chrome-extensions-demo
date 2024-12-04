@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   // chrome.action.disable(); // 禁用插件
 
   // 载入图片
-  const png16 = await loadImageData("/icons/16.png")
+  // const png16 = await loadImageData("/icons/16.png")
 
   chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
     // 启用插件规则
@@ -26,7 +26,7 @@ chrome.runtime.onInstalled.addListener(async () => {
       ],
       actions: [
         new chrome.declarativeContent.ShowAction(), // 在当前条件下启用插件
-        new chrome.declarativeContent.SetIcon({ imageData: { 16: png16 } }), // 将图标设置为彩色, manifest.js 中默认图标为灰色
+        // new chrome.declarativeContent.SetIcon({ imageData: { 16: png16 } }), // 将图标设置为彩色, manifest.js 中默认图标为灰色
       ],
     }
     let rules = [enableRule];
