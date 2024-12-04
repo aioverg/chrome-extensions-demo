@@ -35,7 +35,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.tabs.onActivated.addListener((calb) => {
-  chrome.action.setBadgeText({ text: 'ON' }); // 增加文字
+  // chrome.action.setBadgeText({ text: 'ON' }); // 增加文字
 })
 
 
