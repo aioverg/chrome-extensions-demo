@@ -94,7 +94,7 @@ const icon = {
 
 // api 接口
 const api = {
-  // shopee 全球商品列表详情接口
+  // shopee 全球商品详情接口 - mtsku
   shopeeDetails: async (params) => {
     const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
     const resData = await response.json()
@@ -121,7 +121,12 @@ const api = {
     }
     return Promise.resolve({__affix__, ...resData})
   },
-  // shopee 店铺商品列表详情接口
+  // shopee 根据 mtsku 获取 mpsku
+  mpskuByMtsku: async (params) => {
+    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mpsku_price_by_mtsku/?${params}`,{ method: 'get' })
+    const resData = await response.json()
+  },
+  // shopee 店铺商品详情接口 - mpsku
   productDetails: async (params) => {
     const response = await fetch(`https://seller.shopee.cn/api/v3/product/get_product_info?${params}`,{ method: 'get' })
     const resData = await response.json()
@@ -147,6 +152,11 @@ const api = {
       }
     }
     return Promise.resolve({__affix__, ...resData})
+  },
+  // shopee 根据 mpsku 获取 mtsku
+  mtskuByMpsku: async (params) => {
+    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_id_by_mpsku/?${params}`,{ method: 'get' })
+    const resData = await response.json()
   }
 }
 
