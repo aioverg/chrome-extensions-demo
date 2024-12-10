@@ -260,13 +260,13 @@ class DBStorage {
   getAll() {
     return this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).getAll()
   }
-  // 更新数据
-  update(id, value) {
+  // 更新是否导入字段
+  update(id, isImport) {
     const objectStore = this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName)
     const request = objectStore.get(id)
     request.onsuccess = event => {
       const data = event.target.result
-      data.value = value
+      data.value.__affix__.isImport = isImport
 
       const requestUpdate = objectStore.put(data)
       requestUpdate.onsuccess = (event) => {
@@ -550,7 +550,7 @@ function collectWarehouse() {
         <form method="dialog">
           <div class="momo-dialog-head">
             <span style="color: #DC3545;">採集商品庫</span>
-            <button class="momo-dialog-close" value="cancel">${icon.colse2}</button>
+            <button id="momo-id-default-cancal" class="momo-dialog-close" value="cancel">${icon.colse2}</button>
           </div>
           <div style="width: 640px; padding: 24px 0; height: 472px;">
             <div class="momo-table momo-class-table">
@@ -568,11 +568,11 @@ function collectWarehouse() {
               <div class="momo-table-tbody" id="momo-id-table-tbody">${tbodyDom}</div>
             </div>
           </div>
-          <div class="momo-dialog-bottom">
-            <button class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
-            <button id="momo-id-import-confirm" class="momo-button momo-button-color-2" value="cancel">確認導入</button>
-          </div>
         </form>
+        <div class="momo-dialog-bottom">
+          <button id="momo-id-cancal" class="momo-button momo-button-color-3" value="cancel" style="width: 88px; margin: 0 12px 0 0; color: #343A40;">取消</button>
+          <button id="momo-id-import-confirm" class="momo-button momo-button-color-2" value="cancel">確認導入</button>
+        </div>
       </dialog>
     `
       document.body.insertAdjacentHTML('afterend', dom)
@@ -582,6 +582,13 @@ function collectWarehouse() {
       const momoTableDom = document.getElementsByClassName('momo-class-table')[0]
       momoTableDom.addEventListener('click', warehouseCheckedEvent)
 
+
+      // 取消
+      const cancalDom = document.getElementById('momo-id-cancal')
+      cancalDom.onclick = () => {
+        document.getElementById('momo-id-default-cancal').click()
+      }
+
       // 导入
       const confirmDom = document.getElementById('momo-id-import-confirm')
       confirmDom.onclick = () => {
@@ -590,6 +597,7 @@ function collectWarehouse() {
         for (const i of checkboxDoms) {
           i.checked && data.push(res.target.result[i.dataset.index].value.data)
         }
+        web.db.update(27455488529, true)
         // 向插件发送信息并接受回复
         chrome.runtime.sendMessage({
           type: 'in',
