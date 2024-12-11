@@ -157,6 +157,7 @@ const api = {
   mtskuByMpsku: async (params) => {
     const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_id_by_mpsku/?${params}`,{ method: 'get' })
     const resData = await response.json()
+    return Promise.resolve(resData.data.mtsku_id)
   }
 }
 
@@ -312,7 +313,14 @@ const web = {
               promiseList.push(api.shopeeDetails(i))
             }
             const res = await Promise.all(promiseList)
-            return Promise.resolve(res)
+            const data = []
+            for (const i of res) {
+              data.push({
+                data: { mtSkuJson: i.data },
+                __affix__: i.__affix__
+              })
+            }
+            return Promise.resolve(data)
           },
           injectDom: () => {
             const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
@@ -338,7 +346,10 @@ const web = {
             const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
             const res = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`)
-            return Promise.resolve(res)
+            return Promise.resolve({
+              data: { mtSkuJson: res.data },
+                __affix__: res.__affix__
+            })
           }
         },
         { // shopee 店铺商品列表
@@ -347,26 +358,39 @@ const web = {
           type: 'batch',
           dbTableName: 'product',
           getData: async () => {
-            const params = []
+            const productDetailsPromiseList = []
+            const mtskuByMpskuPromiseList = []
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
             const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
             if (!tableDom) { return false }
             const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
             if (!checkBoxDom.length) { return false }
+
             for (const i of checkBoxDom) {
               if (i.checked) {
-                params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+                productDetailsPromiseList.push(api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`))
+                mtskuByMpskuPromiseList.push(api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`))
               }
             }
-
-            const promiseList = []
-            for (const i of params) {
-              promiseList.push(api.productDetails(i))
+            const productDetailsRes = await Promise.all(productDetailsPromiseList)
+            const mtskuByMpskuRes = await Promise.all(mtskuByMpskuPromiseList)
+            
+            const shopeeDetailsPromiseList = []
+            for (const i of mtskuByMpskuRes) {
+              shopeeDetailsPromiseList.push(api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i}&${cnsc_shop_id}&cbsc_shop_region=my`))
             }
-            const res = await Promise.all(promiseList)
-          
-            return Promise.resolve(res)
+            const shopeeDetailsRes = await Promise.all(shopeeDetailsPromiseList)
+
+            const data = []
+            for (const i in productDetailsRes) {
+              data.push({
+                data: { mpSkuJson: productDetailsRes[i].data.product_info, mtSkuJson: shopeeDetailsRes[i].data },
+                __affix__: productDetailsRes[i].__affix__
+              })
+            }
+
+            return Promise.resolve(data)
 
           },
           injectDom: () => {
@@ -394,8 +418,14 @@ const web = {
             const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
 
-            const res = await api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
-            return Promise.resolve(res)
+            const productDetailsRes = await api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+            const mtskuByMpskuRes = await api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${product_id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+            const shopeeDetailsRes = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtskuByMpskuRes}&${cnsc_shop_id}&cbsc_shop_region=my`)
+
+            return Promise.resolve({
+              data: { mpSkuJson: productDetailsRes.data.product_info, mtSkuJson: shopeeDetailsRes.data },
+              __affix__: productDetailsRes.__affix__
+            })
           }
         },
       ]
