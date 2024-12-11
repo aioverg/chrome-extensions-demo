@@ -18,7 +18,7 @@
       "128": "icons/128.png"
     }
   },
-  "permissions": ["activeTab", "tabs", "scripting", "declarativeContent"],
+  "permissions": ["activeTab", "tabs", "scripting", "declarativeContent", "storage"],
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],

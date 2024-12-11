@@ -1,4 +1,3 @@
-
 // 加载图片
 async function loadImageData(url) {
   const img = await createImageBitmap(await (await fetch(url)).blob())
@@ -48,4 +47,21 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     return
   }
   chrome.tabs.sendMessage(tabId, {type: 'urlChange', url: tab.url})
+})
+
+// 接受 content_script 的信息
+chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
+  if (sender.tab) {
+    // 商品导入
+    if (res.type === 'import') {
+      chrome.storage.local.get(["user"]).then(user => {
+        Promise.resolve().then(response => {
+          console.log('商品列表', res.data, user, response)
+          sendResponse('接收成功')
+        })
+      })
+      // 回复异步消息
+      return true
+    }
+  }
 })

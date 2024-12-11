@@ -597,13 +597,13 @@ function collectWarehouse() {
         for (const i of checkboxDoms) {
           i.checked && data.push(res.target.result[i.dataset.index].value.data)
         }
-        web.db.update(27455488529, true)
+        // web.db.update(27455488529, true)
         // 向插件发送信息并接受回复
         chrome.runtime.sendMessage({
-          type: 'in',
+          type: 'import',
           data: data,
         }, res => {
-          alert(res)
+          console.log(99999999, res)
         })
       }
   })
@@ -804,21 +804,4 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
     default:
       console.log('不能处理此消息', res)
   }
-  // sendRes('回复消息')
-
-  // 回复异步消息
-  // if (res.type === "CollectData") {
-  //   // 请求数据
-  //   const getData = async () => {
-  //     const fetchRes = await fetch('/api/v4/me?include=is_realname,ad_type,available_message_types,default_notifications_count,follow_notifications_count,vote_thank_notifications_count,messages_count,email,account_status,is_bind_phone,following_question_count,is_force_renamed,renamed_fullname,is_destroy_waiting',{ method: 'get' })
-  //     const fetcData = await fetchRes.json()
-  //     return Promise.resolve(fetcData)
-  //   }
-
-  //   getData().then(res => {
-  //     sendRes(res)
-  //   })
-
-  //   return true
-  // }
 })
