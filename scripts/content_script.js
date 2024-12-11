@@ -293,8 +293,7 @@ const web = {
           targetId: 'mtsku-list',
           type: 'batch',
           dbTableName: 'product',
-          apiName: 'shopeeDetails',
-          apiParams: () => {
+          getData: async () => {
             const params = []
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
@@ -307,7 +306,13 @@ const web = {
                 params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
               }
             }
-            return params
+
+            const promiseList = []
+            for (const i of params) {
+              promiseList.push(api.shopeeDetails(i))
+            }
+            const res = await Promise.all(promiseList)
+            return Promise.resolve(res)
           },
           injectDom: () => {
             const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
@@ -327,21 +332,43 @@ const web = {
         { // shopee 全球商品列表详情
           path: /portal\/product\/mtsku\/[0-9]+/,
           type: 'single',
-          apiName: 'shopeeDetails',
           dbTableName: 'product',
-          apiParams: () => {
+          getData: async () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-            return [`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`]
+            const res = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+            return Promise.resolve(res)
           }
         },
         { // shopee 店铺商品列表
           path: /portal\/product\/list\/all/,
           targetClass: 'product-list-container',
           type: 'batch',
-          apiName: 'productDetails',
           dbTableName: 'product',
+          getData: async () => {
+            const params = []
+            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
+            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
+            if (!tableDom) { return false }
+            const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
+            if (!checkBoxDom.length) { return false }
+            for (const i of checkBoxDom) {
+              if (i.checked) {
+                params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+              }
+            }
+
+            const promiseList = []
+            for (const i of params) {
+              promiseList.push(api.productDetails(i))
+            }
+            const res = await Promise.all(promiseList)
+          
+            return Promise.resolve(res)
+
+          },
           injectDom: () => {
             const rootDom = document.getElementsByClassName(injectTarget.tableClass)[0]
             if (rootDom) {
@@ -356,32 +383,19 @@ const web = {
             }
             rootDom.addEventListener('click', injectCheckboxEvent)
           },
-          apiParams: () => {
-            const params = []
-            const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-            const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
-            if (!tableDom) { return false }
-            const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
-            if (!checkBoxDom.length) { return false }
-            for (const i of checkBoxDom) {
-              if (i.checked) {
-                params.push(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
-              }
-            }
-            return params
-          },
         },
         { // shopee 店铺商品列表详情
           path: /portal\/product\/[0-9]+/,
           type: 'single',
           apiName: 'productDetails',
           dbTableName: 'product',
-          apiParams: () => {
+          getData: async () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
             const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-            return [`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`]
+
+            const res = await api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+            return Promise.resolve(res)
           }
         },
       ]
@@ -404,18 +418,6 @@ const web = {
     web.db = new DBStorage()
   }
 }
-
-// 获取采集的商品详情数据
-async function getCollectDetails(params=[]) {
-  const promiseList = []
-  for (const i of params) {
-    promiseList.push(api[web.curPage.apiName](i))
-  }
-  const res = await Promise.all(promiseList)
-
-  return Promise.resolve(res)
-}
-
 
 // 采集失败 dialog
 function collectFailDialog() {
@@ -642,10 +644,9 @@ function singleCollectTip() {
   // 一键搬家
   const singleCollectStorage = document.getElementById('momo-id-single-collect-storage')
   singleCollectStorage.onclick = async () => {
-    const params = web.curPage.apiParams()
-    const res = await getCollectDetails(params)
-    res.forEach(i => web.db.put({id: i.__affix__.id, value: i}))
-    collectResultDialog({type: 'collectScuess', num: res.length})
+    const res = await web.curPage.getData()
+    web.db.put({id: res.__affix__.id, value: res})
+    collectResultDialog({type: 'collectScuess', num: 1})
   }
 }
 
@@ -712,13 +713,12 @@ function batchCollectTip2() {
   // 一键搬家
   const batchCollectStorage = document.getElementById('momo-id-batch-collect-storage')
   batchCollectStorage.onclick = async () => {
-    const params = web.curPage.apiParams()
-    if (!params) {
+    const res = await web.curPage.getData()
+    if(!res) {
       switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
       switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
       return
     }
-    const res = await getCollectDetails(params)
     res.forEach(i => web.db.put({id: i.__affix__.id, value: i}))
     collectResultDialog({type: 'collectScuess', num: res.length})
   }
