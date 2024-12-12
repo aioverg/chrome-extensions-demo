@@ -19,6 +19,7 @@
     }
   },
   "permissions": ["activeTab", "tabs", "scripting", "declarativeContent", "storage"],
+  "host_permissions": ["*://*/*"],
   "content_scripts": [
     {
       "js": ["scripts/content_script.js"],

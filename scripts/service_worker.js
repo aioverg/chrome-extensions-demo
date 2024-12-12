@@ -51,10 +51,31 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // 接受 content_script 的信息
 chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
+  const data = []
+  res.data.forEach(i => {
+    const item = {}
+    Object.keys(i).forEach(j => {
+      item[j] = JSON.stringify(i[j])
+    })
+    data.push(item)
+  })
   if (sender.tab) {
     // 商品导入
     if (res.type === 'import') {
       chrome.storage.local.get(["user"]).then(user => {
+        fetch(
+          'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          {
+            method: 'POST',
+            headers: {
+              'Cookie': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+              'authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+            },
+            body: JSON.stringify(data),
+          }
+        ).then(response => {
+          console.log('=====导入结果=====', response)
+        });
         Promise.resolve().then(response => {
           console.log('商品列表', res.data, user, response)
           sendResponse('接收成功')
