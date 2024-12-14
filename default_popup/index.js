@@ -27,6 +27,8 @@ const loginStatus = status => {
 const login = () => {
   loginStatus('success')
   chrome.storage.local.set({ user: JSON.stringify({token: '1111111'}) })
+  const dom = document.getElementById('login-id-err-hint')
+  dom.classList.remove('login-err-hint-hidden')
 }
 
 // 退出登录

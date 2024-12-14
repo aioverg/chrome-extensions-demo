@@ -110,3 +110,15 @@ input[type="input"]:focus {
 input::placeholder {
   color: #9CA3AF;
 }
+
+#login-id-err-hint {
+  color: #DC3545;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
+  position: absolute;
+  top: 120px;
+}
+.login-err-hint-hidden {
+  display: none;
+}
