@@ -35,6 +35,8 @@ const login = () => {
 const logout = () => {
   chrome.storage.local.clear()
   loginStatus('fail')
+  const dom = document.getElementById('login-id-err-hint')
+  dom.classList.add('login-err-hint-hidden')
 }
 
 // 获取用户信息

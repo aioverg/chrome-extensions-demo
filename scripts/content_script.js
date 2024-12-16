@@ -229,8 +229,8 @@ class DBStorage {
   static db = null
   constructor(storageName = web.curWeb.dbStorageName || "MoMoCollectDatabase", tableNames = web.curWeb.dbTableNames || ['product']){
     const request = indexedDB.open(storageName);
-    request.onerror = () => {
-      console.log('打开失败')
+    request.onerror = (res) => {
+      console.warn('DBStorage 仓库打开失败', res)
     }
     request.onsuccess = e => {
       this.db = e.target.result
@@ -262,17 +262,29 @@ class DBStorage {
     return this.db.transaction([web.curPage.dbTableName]).objectStore(web.curPage.dbTableName).getAll()
   }
   // 更新是否导入字段
-  update(id, isImport) {
+  update(ids, isImport, callback) {
+    const result = []
     const objectStore = this.db.transaction([web.curPage.dbTableName], 'readwrite').objectStore(web.curPage.dbTableName)
-    const request = objectStore.get(id)
-    request.onsuccess = event => {
-      const data = event.target.result
-      data.value.__affix__.isImport = isImport
-
-      const requestUpdate = objectStore.put(data)
-      requestUpdate.onsuccess = (event) => {
-        console.log('数据更新成功')
-      };
+    for (const id of ids) {
+      const request = objectStore.get(id)
+      request.onsuccess = event => {
+        const data = event.target.result
+        data.value.__affix__.isImport = isImport
+  
+        const requestUpdate = objectStore.put(data)
+        requestUpdate.onsuccess = () => {
+          result.push(id)
+          if (result.length === ids.length) {
+            callback && callback(result)
+          }
+        };
+      }
+      request.onerror = () => {
+        result.push(id)
+        if (result.length === ids.length) {
+          callback && callback(result)
+        }
+      }
     }
   }
 }
@@ -486,13 +498,13 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
       contentText: '系統異常，商品探集失敗，請重新探集',
       btText: '我知道了',
     },
-    collectScuess: {
+    collectSuccess: {
       title: '采集成功',
       titleColor: '#343A40',
       contentText: `本次共探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-探集商品庫」中查看已採集商品`,
       btText: '去查看已采集商品庫',
     },
-    collectSomeScuess: {
+    collectSomeSuccess: {
       title: '部分采集成功',
       titleColor: '#343A40',
       contentText: `部分商品探集成功，本次成功探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-探集商品庫」中查看已探集商品`,
@@ -504,13 +516,13 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
       contentText: '系统異常，商品導入失败，請重新導入',
       btText: '我知道了',
     },
-    importScuess: {
+    importSuccess: {
       title: '导入成功',
       titleColor: '#343A40',
       contentText: `本次共導入 <span style="color: #5A72DB;">${val.num}</span> 個商品，已暂存商品，可到「商品管理-商品列表-暫存-搬家暫存」中確認商品信息後，再上架`,
       btText: '去查看已采集商品庫',
     },
-    importSomeScuess: {
+    importSomeSuccess: {
       title: '导入成功',
       titleColor: '#343A40',
       contentText: `部分商品導入失败，本次成功導入 <span style="color: #5A72DB;">${val.num}</span> 個商品，已暂存商品，可到「商品管理-商品列表-暫存-搬家暫存」中確認商品信息後，再上架`,
@@ -542,12 +554,12 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
       case 'collectFailed':
       case 'importFailed':
         break;
-      case 'collectScuess':
-      case 'collectSomeScuess':
+      case 'collectSuccess':
+      case 'collectSomeSuccess':
         collectWarehouse()
         break;
-      case 'importScuess':
-      case 'importSomeScuess':
+      case 'importSuccess':
+      case 'importSomeSuccess':
         break;
       default:
         console.warn('未知类型')
@@ -635,7 +647,15 @@ function collectWarehouse() {
           type: 'import',
           data: data,
         }, res => {
-          console.log(99999999, res)
+          if (res.type === 'error') {
+            collectResultDialog({type: 'importFailed'})
+          } else if (res.type === 'success') {
+            collectResultDialog({ type: 'importSuccess', num: res.ids.length })
+            web.db.update(res.ids, true, collectWarehouse)
+          } else if (res.type === 'someSuccess') {
+            collectResultDialog({ type: 'importSomeSuccess', num: res.ids.length })
+            web.db.update(res.ids, true, collectWarehouse)
+          }
         })
       }
   })
@@ -676,7 +696,7 @@ function singleCollectTip() {
   singleCollectStorage.onclick = async () => {
     const res = await web.curPage.getData()
     web.db.put({id: res.__affix__.id, value: res})
-    collectResultDialog({type: 'collectScuess', num: 1})
+    collectResultDialog({type: 'collectSuccess', num: 1})
   }
 }
 
@@ -749,8 +769,8 @@ function batchCollectTip2() {
       switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
       return
     }
-    res.forEach(i => web.db.put({id: i.__affix__.id, value: i}))
-    collectResultDialog({type: 'collectScuess', num: res.length})
+    res.forEach(i => web.db.put({ id: i.__affix__.id, value: i }))
+    collectResultDialog({type: 'collectSuccess', num: res.length})
   }
 }
 
@@ -800,7 +820,7 @@ function collectFloat() {
         checkDom ? switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show') : switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
         break
       default:
-        console.log('类型检测出错')
+        console.warn('类型检测出错')
     }
   }  
 }
@@ -832,6 +852,6 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
       }
       break
     default:
-      console.log('不能处理此消息', res)
+      console.warn('不能处理此消息', res)
   }
 })

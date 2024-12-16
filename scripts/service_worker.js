@@ -64,8 +64,8 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
     if (res.type === 'import') {
       chrome.storage.local.get(["user"]).then(user => {
         fetch(
-          'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
           {
             method: 'POST',
             headers: {
@@ -75,12 +75,18 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
             },
             body: JSON.stringify(data),
           }
-        ).then(response => {
-          console.log('=====导入结果=====', response)
-        });
-        Promise.resolve().then(response => {
-          console.log('商品列表', res.data, user, response)
-          sendResponse('接收成功')
+        )
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            sendResponse({ type: 'success', ids: data.successThridIdlist })
+          } else {
+            sendResponse({type: 'error', ids: [] })
+          }
+          console.log('=====导入结果=====', data)
+        })
+        .catch(err => {
+          sendResponse({type: 'error', ids: [] })
         })
       })
       // 回复异步消息
