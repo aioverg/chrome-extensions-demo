@@ -93,7 +93,6 @@
 }
 
 
-
 .momo-button {
   margin: 0;
   padding: 0;
@@ -114,6 +113,11 @@
   z-index: 1;
   box-shadow: 0 2px #00000004;
   transition: .3s;
+}
+
+.momo-button-disabled {
+  filter: grayscale(100%);
+  cursor: not-allowed;
 }
 
 .momo-button::after{
@@ -183,7 +187,6 @@
 .momo-button-color-3:active::after {
   background: #F5F5F5;
 }
-
 
 .momo-dialog {
   border: 0;

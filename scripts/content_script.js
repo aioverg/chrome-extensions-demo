@@ -642,10 +642,12 @@ function collectWarehouse() {
       // 导入
       const confirmDom = document.getElementById('momo-id-import-confirm')
       confirmDom.onclick = () => {
+        confirmDom.disabled = true
+        confirmDom.classList.add('momo-button-disabled')
         const data = []
         const checkboxDoms = document.getElementById('momo-id-table-tbody').getElementsByClassName('momo-checkbox')
         for (const i of checkboxDoms) {
-          i.checked && data.push(res.target.result[i.dataset.index].value.data)
+          i.checked && data.push(res.target.result[i.dataset.index].value)
         }
         // web.db.update(27455488529, true)
         // 向插件发送信息并接受回复
@@ -657,10 +659,10 @@ function collectWarehouse() {
             collectResultDialog({type: 'importFailed'})
           } else if (res.type === 'success') {
             collectResultDialog({ type: 'importSuccess', num: res.ids.length })
-            web.db.update(res.ids, true, collectWarehouse)
+            web.db.update(res.ids, true, cancalDom.click())
           } else if (res.type === 'someSuccess') {
             collectResultDialog({ type: 'importSomeSuccess', num: res.ids.length })
-            web.db.update(res.ids, true, collectWarehouse)
+            web.db.update(res.ids, true, cancalDom.click())
           }
         })
       }

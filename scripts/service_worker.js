@@ -54,8 +54,8 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
   const data = []
   res.data.forEach(i => {
     const item = {}
-    Object.keys(i).forEach(j => {
-      item[j] = JSON.stringify(i[j])
+    Object.keys(i.data).forEach(j => {
+      item[j] = JSON.stringify(i.data[j])
     })
     data.push(item)
   })
@@ -78,15 +78,26 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
           }
         )
         .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            sendResponse({ type: data.successThridIdlist.length === data.length ? 'success' : 'someSuccess', ids: data.successThridIdlist })
+        .then(response => {
+          if (response.success) {
+            const successIds = []
+            if (response.data.successThridIdList.length) {
+              for (const i of res.data) {
+                if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
+                  successIds.push(i.__affix__.id)
+                } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
+                  successIds.push(i.__affix__.id)
+                }
+              }
+            }
+            sendResponse({ type: successIds.length === data.length ? 'success' : 'someSuccess', ids: successIds })
           } else {
             sendResponse({type: 'error', ids: [] })
           }
           console.log('=====导入结果=====', data)
         })
         .catch(err => {
+          console.warn('=====导入出错=====', err)
           sendResponse({type: 'error', ids: [] })
         })
       })
