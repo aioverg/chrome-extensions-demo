@@ -344,7 +344,8 @@ const web = {
               const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
               for (const i of tbodyTrDoms) {
                 const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
-                i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+                const firstDom = i.getElementsByTagName('td')[0]
+                firstDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
               }
             }
             rootDom.addEventListener('click', injectCheckboxEvent)
@@ -418,7 +419,8 @@ const web = {
               const tbodyTrDoms = rootDom.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
               for (const i of tbodyTrDoms) {
                 const id = i.getElementsByClassName('item-id')[0].childNodes[0].innerText.match(/[0-9]+/)
-                i.childNodes[0].insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
+                const firstDom = i.getElementsByTagName('td')[0]
+                firstDom.insertAdjacentHTML('afterbegin', `<input type="checkbox" data-id="${id? id[0] : undefined}" class="momo-checkbox ${injectTarget.checkboxClass}" />`)
               }
             }
             rootDom.addEventListener('click', injectCheckboxEvent)
