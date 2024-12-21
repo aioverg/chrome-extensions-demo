@@ -65,8 +65,8 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
       chrome.storage.local.get(["user"]).then(user => {
         fetch(
           // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          // 'http://test.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          'http://test.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
           {
             method: 'POST',
             headers: {
