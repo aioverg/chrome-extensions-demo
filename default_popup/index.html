@@ -7,8 +7,8 @@
     <style></style>
   </head>
   <body>
-    <div style="width: 308px; height: 168px; padding: 24px 16px 32px; display: flex; flex-direction: column;">
-      <div style="position: relative; padding-bottom: 12px;">
+    <div style="width: 340px; height: 288px; padding: 24px 16px; display: flex; flex-direction: column;">
+      <div style="position: relative; padding-bottom: 16px;">
         <svg width="101" height="16" viewBox="0 0 101 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M28.8137 0H46.4018C47.7913 0 48.9157 1.12941 48.9249 2.52235V13.4871C48.9249 14.8706 47.7913 16 46.4018 16H28.8137C27.4242 16 26.2907 14.88 26.2907 13.4871V2.52235C26.2907 1.12941 27.4242 0 28.8137 0ZM43.1658 12.0094C43.8971 12.0094 44.4913 11.4165 44.4913 10.6824H44.4821V5.31765C44.4821 4.58353 43.8879 3.99059 43.1566 3.99059H32.0864C31.3551 3.99059 30.7609 4.58353 30.7609 5.31765V10.6824C30.7609 11.4165 31.3551 12.0094 32.0864 12.0094H43.1658Z" fill="#5E6999"/>
           <path fill-rule="evenodd" clip-rule="evenodd" d="M80.4444 0H98.0325C99.422 0 100.556 1.12941 100.556 2.52235V13.4871C100.556 14.8706 99.422 16 98.0325 16H80.4444C79.055 16 77.9306 14.8706 77.9306 13.4776V2.51294C77.9306 1.12941 79.055 0 80.4444 0ZM91.4964 13.7976C91.5604 13.8071 92.5385 13.7224 92.9316 13.6C94.8787 13.1953 96.5059 11.6141 96.515 8.64941C96.515 6.64471 94.6776 2.74824 88.754 2.17412C86.8891 2.46588 81.9802 4.36706 81.9802 8.78118C81.9802 10.2024 82.6932 11.5576 83.909 12.6965C84.7592 13.4965 85.9476 13.9859 85.7008 13.7506C85.3168 13.3741 85.198 12.5929 85.2894 12.0941C85.5453 10.7671 86.5875 10.3718 86.5875 10.3718C86.5875 10.3718 86.1395 13.28 90.5823 13.7412C90.8474 13.7788 91.4599 13.7976 91.4964 13.7976Z" fill="#5E6999"/>
@@ -19,29 +19,43 @@
         <span id="logout" class="login hidden" style="font-size: 14px; width: 80px; text-align: center; color: #5E6999; cursor: pointer; position: absolute; right: 0; top: 0;">退出登錄</span>
       </div>
 
-      <div class="noLogin hidden" style="flex: 1;">
-        <div  style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; position: relative;">
-          <div style="font-size: 14px; margin-bottom: 24px;">使用momo店+賬號登錄，插件幫您快速搬家</div>
-          <input type="input" style="margin-bottom: 16px;" placeholder="请输入momo店+后台账号" />
-          <input type="input" placeholder="请输入momo店+后台密码" />
-          <div id="login-id-err-hint" class="login-err-hint-hidden">賬號或密碼錯誤，請重新輸入</div>
-          <div style="display: flex; justify-content: center; margin: 32px 0;">
-            <button id="cancel" class="button-color-2"style="width: 88px; margin-right: 12px;">取消</button>
-            <button id="login" class="button-color-1" style="width: 88px;">登录</button>
-          </div>
+      <div style="font-size: 14px; line-height: 20px;">
+        <div style="color: #364480; margin-bottom: 4px;">歡迎使用搬家小助手</div>
+        <div>同時滿足以下兩個條件，才能使用插件哦~</div>
+      </div>
+
+      <div id="login_status_box" style="padding: 8px; border-radius: 6px; background: #F6F7FA; margin: 12px 0 16px; font-size: 14px; line-height: 22px;">
+        <div style="position: relative;">
+          <span style="display: inline-block; width: 20px; height: 20px; position: relative; top: 5px; margin-right: 8px;">
+            <svg id="step1_success" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M13.6711 8.15028C13.9152 7.9062 13.9152 7.51047 13.6711 7.26639C13.427 7.02231 13.0313 7.02231 12.7872 7.26639L8.85417 11.1994L7.10861 9.45389C6.86453 9.20981 6.4688 9.20981 6.22472 9.45389C5.98065 9.69797 5.98065 10.0937 6.22472 10.3378L8.41222 12.5253C8.6563 12.7694 9.05203 12.7694 9.29611 12.5253L13.6711 8.15028Z" fill="#28A745"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.875C5.51269 1.875 1.875 5.51269 1.875 10C1.875 14.4873 5.51269 18.125 10 18.125C14.4873 18.125 18.125 14.4873 18.125 10C18.125 5.51269 14.4873 1.875 10 1.875ZM3.125 10C3.125 6.20304 6.20304 3.125 10 3.125C13.797 3.125 16.875 6.20304 16.875 10C16.875 13.797 13.797 16.875 10 16.875C6.20304 16.875 3.125 13.797 3.125 10Z" fill="#28A745"/>
+            </svg>
+            <svg id="step1_error" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 3.125C6.20304 3.125 3.125 6.20304 3.125 10C3.125 13.797 6.20304 16.875 10 16.875C13.797 16.875 16.875 13.797 16.875 10C16.875 6.20304 13.797 3.125 10 3.125ZM1.875 10C1.875 5.51269 5.51269 1.875 10 1.875C14.4873 1.875 18.125 5.51269 18.125 10C18.125 14.4873 14.4873 18.125 10 18.125C5.51269 18.125 1.875 14.4873 1.875 10ZM7.20108 7.20103C7.44516 6.95696 7.84089 6.95696 8.08497 7.20103L10 9.11611L11.9151 7.20103C12.1592 6.95696 12.5549 6.95696 12.799 7.20103C13.0431 7.44511 13.0431 7.84084 12.799 8.08492L10.8839 10L12.799 11.9151C13.0431 12.1592 13.0431 12.5549 12.799 12.799C12.5549 13.043 12.1592 13.043 11.9151 12.799L10 10.8839L8.08497 12.799C7.84089 13.043 7.44516 13.043 7.20108 12.799C6.95701 12.5549 6.95701 12.1592 7.20108 11.9151L9.11616 10L7.20108 8.08492C6.95701 7.84084 6.95701 7.44511 7.20108 7.20103Z" fill="#DC3545"/>
+            </svg>
+          </span>
+          <span style="display: inline-block;">請先登入momo店+後台</span>
+        </div>
+
+        <div style="display: flex; margin-top: 8px;">
+          <span style="display: inline-block; width: 20px; height: 20px; position: relative; top: 3px; margin-right: 12px;">
+            <svg id="step2_success" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M13.6711 8.15028C13.9152 7.9062 13.9152 7.51047 13.6711 7.26639C13.427 7.02231 13.0313 7.02231 12.7872 7.26639L8.85417 11.1994L7.10861 9.45389C6.86453 9.20981 6.4688 9.20981 6.22472 9.45389C5.98065 9.69797 5.98065 10.0937 6.22472 10.3378L8.41222 12.5253C8.6563 12.7694 9.05203 12.7694 9.29611 12.5253L13.6711 8.15028Z" fill="#28A745"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.875C5.51269 1.875 1.875 5.51269 1.875 10C1.875 14.4873 5.51269 18.125 10 18.125C14.4873 18.125 18.125 14.4873 18.125 10C18.125 5.51269 14.4873 1.875 10 1.875ZM3.125 10C3.125 6.20304 6.20304 3.125 10 3.125C13.797 3.125 16.875 6.20304 16.875 10C16.875 13.797 13.797 16.875 10 16.875C6.20304 16.875 3.125 13.797 3.125 10Z" fill="#28A745"/>
+            </svg>
+            <svg id="step2_error" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10 3.125C6.20304 3.125 3.125 6.20304 3.125 10C3.125 13.797 6.20304 16.875 10 16.875C13.797 16.875 16.875 13.797 16.875 10C16.875 6.20304 13.797 3.125 10 3.125ZM1.875 10C1.875 5.51269 5.51269 1.875 10 1.875C14.4873 1.875 18.125 5.51269 18.125 10C18.125 14.4873 14.4873 18.125 10 18.125C5.51269 18.125 1.875 14.4873 1.875 10ZM7.20108 7.20103C7.44516 6.95696 7.84089 6.95696 8.08497 7.20103L10 9.11611L11.9151 7.20103C12.1592 6.95696 12.5549 6.95696 12.799 7.20103C13.0431 7.44511 13.0431 7.84084 12.799 8.08492L10.8839 10L12.799 11.9151C13.0431 12.1592 13.0431 12.5549 12.799 12.799C12.5549 13.043 12.1592 13.043 11.9151 12.799L10 10.8839L8.08497 12.799C7.84089 13.043 7.44516 13.043 7.20108 12.799C6.95701 12.5549 6.95701 12.1592 7.20108 11.9151L9.11616 10L7.20108 8.08492C6.95701 7.84084 6.95701 7.44511 7.20108 7.20103Z" fill="#DC3545"/>
+            </svg>
+          </span>
+          <span style="display: inline-block;">請登入競品後台，打開商品列表或者商品詳情頁面+後台</span>
         </div>
       </div>
 
-      <div class="login hidden" style="flex: 1;">
-        <div class="login" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-          <div style="font-size: 14px; line-height: 22px; margin: 12px 0 24px;">使用帮助：請登錄蝦皮後台，点击右下角浮标開始採集商品吧</div>
-          <div style="display: flex; justify-content: center; margin-bottom: 32px;">
-            <button id="close" class="button-color-1" style="width: 88px;">我知道了</button>
-          </div>
-        </div>
+      <div style="display: flex; justify-content: center; margin-bottom: 32px;">
+        <button id="close" class="button-color-1" style="width: 88px;">我知道了</button>
       </div>
-      
-      
+
     </div>
     <script src="./index.js"></script>
   </body>

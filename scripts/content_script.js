@@ -649,7 +649,6 @@ function collectWarehouse() {
         for (const i of checkboxDoms) {
           i.checked && data.push(res.target.result[i.dataset.index].value)
         }
-        // web.db.update(27455488529, true)
         // 向插件发送信息并接受回复
         chrome.runtime.sendMessage({
           type: 'import',

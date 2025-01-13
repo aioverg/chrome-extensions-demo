@@ -80,10 +80,6 @@ button:active::after{
   display: none;
 }
 
-.show {
-  display: block;
-}
-
 
 input {
   outline: none;

@@ -40,16 +40,37 @@ chrome.tabs.onActivated.addListener((calb) => {
 
 // 监听 url 地址改变, 与 manifest.json 中 content_scripts 配置的一样
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (!tab.url || !tab.url.startsWith('https://seller.shopee.cn')) {
+  if (!tab.url || changeInfo.status !== 'complete') {
     return
   }
-  if (changeInfo.status !== 'complete') {
+  if (tab.url.startsWith('https://seller.shopee.cn')) {
+    chrome.tabs.sendMessage(
+      tabId, 
+      { type: 'urlChange', url: tab.url },
+    )
     return
   }
-  chrome.tabs.sendMessage(tabId, {type: 'urlChange', url: tab.url})
+
+  // 获取 momo cookies
+  if (tab.url.startsWith('https://test.momo.dgbase.top')) {
+    chrome.cookies.getAll(
+      {
+        domain: ".momo.dgbase.top",
+        // name: 'JSESSIONID',
+      },
+      (res) => {
+        let cookies = ''
+        res.forEach((i) => {
+          cookies += `${i.name}=${i.value}${cookies ? ';' : ''}`
+        })
+        chrome.storage.local.set({cookies: cookies})
+      }
+    )
+    return
+  }
 })
 
-// 接受 content_script 的信息
+// 接收 content_script 的信息
 chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
   const data = []
   res.data.forEach(i => {
