@@ -1,7 +1,7 @@
 const web = {
   shopee: {
     name: 'shopee',
-    href: 'https://seller.shopee.cn/',
+    href: 'https://seller.shopee.tw/',
     pages: [
       /portal\/product\/mtsku\/list/,
       /portal\/mtsku\/[0-9]+/,

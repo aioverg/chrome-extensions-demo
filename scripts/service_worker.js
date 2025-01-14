@@ -139,6 +139,12 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
             .then(response => {
               if (response.success) {
                 const successIds = []
+                response.data.successThridIdList = []
+                response.data.goodsList.forEach(i => {
+                  if(i.success) {
+                    successIds.push(i.id)
+                  }
+                })
                 if (response.data.successThridIdList.length) {
                   for (const i of res.data) {
                     if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {

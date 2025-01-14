@@ -94,9 +94,10 @@ const icon = {
 
 // api 接口
 const api = {
+  baseUrl: 'https://seller.shopee.tw',
   // shopee 全球商品详情接口 - mtsku
   shopeeDetails: async (params) => {
-    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
+    const response = await fetch(`${baseUrl}/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
     const resData = await response.json()
     const __affix__ = {
       id: resData.data.mtsku_item_id,
@@ -123,12 +124,13 @@ const api = {
   },
   // shopee 根据 mtsku 获取 mpsku
   mpskuByMtsku: async (params) => {
-    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mpsku_price_by_mtsku/?${params}`,{ method: 'get' })
+    const response = await fetch(`${baseUrl}/api/v3/mtsku/get_mpsku_price_by_mtsku/?${params}`,{ method: 'get' })
     const resData = await response.json()
   },
+
   // shopee 店铺商品详情接口 - mpsku
   productDetails: async (params) => {
-    const response = await fetch(`https://seller.shopee.cn/api/v3/product/get_product_info?${params}`,{ method: 'get' })
+    const response = await fetch(`${baseUrl}/api/v3/product/get_product_info?${params}`,{ method: 'get' })
     const resData = await response.json()
     const __affix__ = {
       id: resData.data.product_info.id,
@@ -155,7 +157,7 @@ const api = {
   },
   // shopee 根据 mpsku 获取 mtsku
   mtskuByMpsku: async (params) => {
-    const response = await fetch(`https://seller.shopee.cn/api/v3/mtsku/get_mtsku_id_by_mpsku/?${params}`,{ method: 'get' })
+    const response = await fetch(`${baseUrl}/api/v3/mtsku/get_mtsku_id_by_mpsku/?${params}`,{ method: 'get' })
     const resData = await response.json()
     return Promise.resolve(resData.data.mtsku_id)
   }
@@ -297,7 +299,7 @@ const web = {
   list: [
     {
       name: 'shopee',
-      href: 'https://seller.shopee.cn/',
+      href: 'https://seller.shopee.tw/',
       dbStorageName: 'MoMoCollectDatabase', // 仓库名称
       dbTableNames: ['product'],
       pages: [ // 采集页面列表
@@ -309,14 +311,19 @@ const web = {
           getData: async () => {
             const params = []
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            let cnsc_shop_id = null
+            try {
+              cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            }catch(err) {
+              console.warn('没有 cnsc_shop_id')
+            }
             const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
             if (!tableDom) { return { type: 'noInjectDom' } }
             const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
             if (!checkBoxDom.length) { return { type: 'noInjectDom' } }
             for (const i of checkBoxDom) {
               if (i.checked) {
-                params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+                params.push(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i.dataset.id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
               }
             }
             if (!params.length) { return { type: 'noChecked' } }
@@ -358,8 +365,13 @@ const web = {
           getData: async () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
             const mtsku_item_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
-            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
-            const res = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&${cnsc_shop_id}&cbsc_shop_region=my`)
+            let cnsc_shop_id = null
+            try {
+              cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            }catch(err) {
+              console.warn('没有 cnsc_shop_id')
+            }
+            const res = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtsku_item_id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
             return Promise.resolve({
               data: { mtSkuJson: res.data },
                 __affix__: res.__affix__
@@ -375,7 +387,12 @@ const web = {
             const productDetailsPromiseList = []
             const mtskuByMpskuPromiseList = []
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            let cnsc_shop_id = null
+            try {
+              cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            }catch(err) {
+              console.warn('没有 cnsc_shop_id')
+            }
             const tableDom = document.getElementsByClassName(injectTarget.tableClass)[0]
             if (!tableDom) { return { type: 'noInjectDom' } }
             const checkBoxDom = tableDom.getElementsByClassName(injectTarget.checkboxClass)
@@ -383,26 +400,27 @@ const web = {
 
             for (const i of checkBoxDom) {
               if (i.checked) {
-                productDetailsPromiseList.push(api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`))
-                mtskuByMpskuPromiseList.push(api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${i.dataset.id}&${cnsc_shop_id}&cbsc_shop_region=my`))
+                productDetailsPromiseList.push(api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${i.dataset.id}&cnsc_shop_id=${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`))
+                mtskuByMpskuPromiseList.push(api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${i.dataset.id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`))
               }
             }
 
             if (!productDetailsPromiseList.length) { return { type: 'noChecked' } }
 
             const productDetailsRes = await Promise.all(productDetailsPromiseList)
-            const mtskuByMpskuRes = await Promise.all(mtskuByMpskuPromiseList)
+            // const mtskuByMpskuRes = await Promise.all(mtskuByMpskuPromiseList)
             
-            const shopeeDetailsPromiseList = []
-            for (const i of mtskuByMpskuRes) {
-              shopeeDetailsPromiseList.push(api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i}&${cnsc_shop_id}&cbsc_shop_region=my`))
-            }
-            const shopeeDetailsRes = await Promise.all(shopeeDetailsPromiseList)
+            // const shopeeDetailsPromiseList = []
+            // for (const i of mtskuByMpskuRes) {
+            //   shopeeDetailsPromiseList.push(api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${i}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`))
+            // }
+            // const shopeeDetailsRes = await Promise.all(shopeeDetailsPromiseList)
 
             const data = []
             for (const i in productDetailsRes) {
               data.push({
-                data: { mpSkuJson: productDetailsRes[i].data.product_info, mtSkuJson: shopeeDetailsRes[i].data },
+                data: { mpSkuJson: productDetailsRes[i].data.product_info },
+                // data: { mpSkuJson: productDetailsRes[i].data.product_info, mtSkuJson: shopeeDetailsRes[i].data },
                 __affix__: productDetailsRes[i].__affix__
               })
             }
@@ -433,15 +451,22 @@ const web = {
           dbTableName: 'product',
           getData: async () => {
             const SPC_CDS = document.cookie.match(/SPC_CDS=.*?;/)[0].replace(';', '')
-            const product_id = window.location.href.match(/[0-9]+\?/)[0].replace('?', '')
-            const cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            const product_id = window.location.href.match(/[0-9]+\?{0,1}/)[0].replace('?', '')
+            let cnsc_shop_id = null
 
-            const productDetailsRes = await api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
-            const mtskuByMpskuRes = await api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${product_id}&${cnsc_shop_id}&cbsc_shop_region=my`)
-            const shopeeDetailsRes = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtskuByMpskuRes}&${cnsc_shop_id}&cbsc_shop_region=my`)
+            try {
+              cnsc_shop_id = window.location.href.match(/cnsc_shop_id=[0-9]+/)[0]
+            }catch(err) {
+              console.warn('没有 cnsc_shop_id')
+            }
+
+            const productDetailsRes = await api.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}&cnsc_shop_id=${cnsc_shop_id}&is_draft=false&cbsc_shop_region=my`)
+            // const mtskuByMpskuRes = await api.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${product_id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
+            // const shopeeDetailsRes = await api.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtskuByMpskuRes}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
 
             return Promise.resolve({
-              data: { mpSkuJson: productDetailsRes.data.product_info, mtSkuJson: shopeeDetailsRes.data },
+              data: { mpSkuJson: productDetailsRes.data.product_info },
+              // data: { mpSkuJson: productDetailsRes.data.product_info, mtSkuJson: shopeeDetailsRes.data },
               __affix__: productDetailsRes.__affix__
             })
           }
@@ -655,6 +680,8 @@ function collectWarehouse() {
           type: 'import',
           data: data,
         }, res => {
+          confirmDom.disabled = false
+          confirmDom.classList.remove('momo-button-disabled')
           if (res.type === 'error') {
             collectResultDialog({type: 'importFailed'})
           } else if (res.type === 'success') {

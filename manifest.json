@@ -32,7 +32,7 @@
       "js": ["scripts/content_script.js"],
       "css": ["styles/content_script.css"],
       "matches": [
-        "https://seller.shopee.cn/*"
+        "https://seller.shopee.tw/*"
       ]
     }
   ],
