@@ -1,4 +1,5 @@
 const loginStatusBoxDom = document.getElementById('login_status_box')
+const successHintDom = document.getElementById('success-hint')
 const step1SuccessDom = document.getElementById('step1_success')
 const step1ErrorDom = document.getElementById('step1_error')
 const step2SuccessDom = document.getElementById('step2_success')
@@ -49,6 +50,14 @@ document.addEventListener("DOMContentLoaded", async (event) => {
       } else {
         step2SuccessDom.classList.add('hidden')
         step2ErrorDom.classList.remove('hidden')
+      }
+
+      if (step1SuccessDom.classList.contains('hidden') || step2SuccessDom.classList.contains('hidden')) {
+        successHintDom.classList.add('hidden')
+        loginStatusBoxDom.style.background = '#F6F7FA'
+      } else {
+        successHintDom.classList.remove('hidden')
+        loginStatusBoxDom.style.background = '#EDF7EF'
       }
     }
   );

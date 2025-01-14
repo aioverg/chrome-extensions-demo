@@ -39,7 +39,7 @@ chrome.tabs.onActivated.addListener((calb) => {
 
 
 // 监听 url 地址改变, 与 manifest.json 中 content_scripts 配置的一样
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab.url || changeInfo.status !== 'complete') {
     return
   }
@@ -48,6 +48,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       tabId, 
       { type: 'urlChange', url: tab.url },
     )
+
+    const cookies = await chrome.storage.local.get(["cookies"])
+    if (cookies) {
+      chrome.tabs.sendMessage(
+        tabId, 
+        { type: 'loginStatus', status: true },
+      )
+    }
     return
   }
 
@@ -72,66 +80,89 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // 接收 content_script 的信息
 chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
-  const data = []
-  res.data.forEach(i => {
-    const item = {}
-    Object.keys(i.data).forEach(j => {
-      item[j] = JSON.stringify(i.data[j])
-    })
-    data.push(item)
-  })
-  if (sender.tab) {
-    // 商品导入
-    if (res.type === 'import') {
-      chrome.storage.local.get(["user"]).then(user => {
-        fetch(
-          // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          'http://test.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-          {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json',
-              // 'Cookie': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
-              // 'authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
-            },
-            body: JSON.stringify(data),
-          }
-        )
-        .then(response => response.json())
-        .then(response => {
-          if (response.success) {
-            const successIds = []
-            if (response.data.successThridIdList.length) {
-              for (const i of res.data) {
-                if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
-                  successIds.push(i.__affix__.id)
-                } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
-                  successIds.push(i.__affix__.id)
-                }
-              }
-            }
-            let type = 'error'
-            if (successIds.length) {
-              if (successIds.length === res.data.length) {
-                type = 'success'
-              } else {
-                type = 'someSuccess'
-              }
-            }
-            sendResponse({ type: type, ids: successIds })
-          } else {
-            sendResponse({type: 'error', ids: [] })
-          }
-          console.log('=====导入结果=====', data)
+  switch(res.type) {
+    case 'import':
+      const data = []
+      res.data.forEach(i => {
+        const item = {}
+        Object.keys(i.data).forEach(j => {
+          item[j] = JSON.stringify(i.data[j])
         })
-        .catch(err => {
-          console.warn('=====导入出错=====', err)
-          sendResponse({type: 'error', ids: [] })
-        })
+        data.push(item)
       })
+      if (sender.tab) {
+        // 商品导入
+        if (res.type === 'import') {
+          chrome.storage.local.get(["user"]).then(user => {
+            fetch(
+              // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+              // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+              'http://test.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+              {
+                method: 'POST',
+                headers: {
+                  'content-type': 'application/json',
+                  // 'Cookie': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+                  // 'authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+                },
+                body: JSON.stringify(data),
+              }
+            )
+            .then(response => response.json())
+            .then(response => {
+              if (response.success) {
+                const successIds = []
+                if (response.data.successThridIdList.length) {
+                  for (const i of res.data) {
+                    if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
+                      successIds.push(i.__affix__.id)
+                    } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
+                      successIds.push(i.__affix__.id)
+                    }
+                  }
+                }
+                let type = 'error'
+                if (successIds.length) {
+                  if (successIds.length === res.data.length) {
+                    type = 'success'
+                  } else {
+                    type = 'someSuccess'
+                  }
+                }
+                sendResponse({ type: type, ids: successIds })
+              } else {
+                sendResponse({type: 'error', ids: [] })
+              }
+              console.log('=====导入结果=====', data)
+            })
+            .catch(err => {
+              console.warn('=====导入出错=====', err)
+              sendResponse({type: 'error', ids: [] })
+            })
+          })
+          // 回复异步消息
+          return true
+        }
+      }
+      break
+    case 'loginStatus':
+      chrome.cookies.getAll(
+        {
+          domain: ".momo.dgbase.top",
+          // name: 'JSESSIONID',
+        },
+        (res) => {
+          console.log(111111111)
+          if (sender.tab) {
+            sendResponse({ status: true })
+          }
+        }
+      )
       // 回复异步消息
       return true
-    }
+    default:
+      console.warn('不能处理此消息', res)
+      
   }
+
 })

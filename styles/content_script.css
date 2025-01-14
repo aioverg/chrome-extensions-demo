@@ -10,8 +10,12 @@
   z-index: 9999;
 }
 
-.momo-collect-float-hidden {
+.momo-hidden {
   display: none;
+}
+
+.momo-disabled {
+  filter: grayscale(0.7);
 }
 
 .momo-collect-float .momo-collect-float-content {
