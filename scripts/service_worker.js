@@ -58,6 +58,8 @@ const checkLogin = async (callback) => {
   .then(res => {
     if (res.done && !res.value) {
       callback && callback(true)
+    } else {
+      callback && callback(false)
     }
     return Promise.resolve()
   })

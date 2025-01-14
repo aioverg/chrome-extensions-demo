@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
   chrome.tabs.query(
     {active: true, currentWindow: true},
     (tabs) => {
-      if (tabs[0] && tabs[0].url && tabs[0].url.startsWith(web.shopee.name) && web.shopee.pages.find(i => tabs[0].url.match(i))) {
+      if (tabs[0] && tabs[0].url && tabs[0].url.startsWith(web.shopee.href) && web.shopee.pages.find(i => tabs[0].url.match(i))) {
         step2SuccessDom.classList.remove('hidden')
         step2ErrorDom.classList.add('hidden')
       } else {

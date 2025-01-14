@@ -566,6 +566,7 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
         break;
       case 'importSuccess':
       case 'importSomeSuccess':
+        window.open("https://test.momo.dgbase.top/v2/products/new-product-list");
         break;
       default:
         console.warn('=====未知类型=====')
@@ -843,7 +844,7 @@ function collectFloat() {
 // 是否可用浮窗
 function disabledFloat() {
   const dom = `
-    <div id="momo-id-disabled-float" class="momo-hidden" style="width: 340px; padding: 24px 16px; position: fixed; top: 310px; right: 80px; background: #fff; border-radius: 8px; box-shadow: 0px 138px 184px 0px rgba(0, 0, 0, 0.03), 0px 57.653px 76.871px 0px rgba(0, 0, 0, 0.02), 0px 30.824px 41.099px 0px rgba(0, 0, 0, 0.02), 0px 17.28px 23.04px 0px rgba(0, 0, 0, 0.01), 0px 9.177px 12.236px 0px rgba(0, 0, 0, 0.01), 0px 3.819px 5.092px 0px rgba(0, 0, 0, 0.01); ">
+    <div id="momo-id-disabled-float" class="momo-hidden" style="z-index: 9999; width: 340px; padding: 24px 16px; position: fixed; top: 310px; right: 80px; background: #fff; border-radius: 8px; box-shadow: 0px 138px 184px 0px rgba(0, 0, 0, 0.03), 0px 57.653px 76.871px 0px rgba(0, 0, 0, 0.02), 0px 30.824px 41.099px 0px rgba(0, 0, 0, 0.02), 0px 17.28px 23.04px 0px rgba(0, 0, 0, 0.01), 0px 9.177px 12.236px 0px rgba(0, 0, 0, 0.01), 0px 3.819px 5.092px 0px rgba(0, 0, 0, 0.01); ">
       <div style="position: relative; padding-bottom: 16px;">
         <svg width="101" height="16" viewBox="0 0 101 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M28.8137 0H46.4018C47.7913 0 48.9157 1.12941 48.9249 2.52235V13.4871C48.9249 14.8706 47.7913 16 46.4018 16H28.8137C27.4242 16 26.2907 14.88 26.2907 13.4871V2.52235C26.2907 1.12941 27.4242 0 28.8137 0ZM43.1658 12.0094C43.8971 12.0094 44.4913 11.4165 44.4913 10.6824H44.4821V5.31765C44.4821 4.58353 43.8879 3.99059 43.1566 3.99059H32.0864C31.3551 3.99059 30.7609 4.58353 30.7609 5.31765V10.6824C30.7609 11.4165 31.3551 12.0094 32.0864 12.0094H43.1658Z" fill="#5E6999"/>
@@ -911,7 +912,7 @@ batchCollectTip1()
 batchCollectTip2()
 disabledFloat()
 
-// 接收插件的信息并回复
+// 接收消息
 chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
   const disabledFloatDom = document.getElementById('momo-id-disabled-float')
   disabledFloatDom && disabledFloatDom.classList.add('momo-hidden')
