@@ -230,7 +230,7 @@ class DBStorage {
   constructor(storageName = web.curWeb.dbStorageName || "MoMoCollectDatabase", tableNames = web.curWeb.dbTableNames || ['product']){
     const request = indexedDB.open(storageName);
     request.onerror = (res) => {
-      console.warn('DBStorage 仓库打开失败', res)
+      console.warn('=====DBStorage 仓库打开失败=====', res)
     }
     request.onsuccess = e => {
       this.db = e.target.result
@@ -568,7 +568,7 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
       case 'importSomeSuccess':
         break;
       default:
-        console.warn('未知类型')
+        console.warn('=====未知类型=====')
     }
     
   }
@@ -835,7 +835,7 @@ function collectFloat() {
         checkDom ? switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show') : switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
         break
       default:
-        console.warn('类型检测出错')
+        console.warn('=====类型检测出错=====')
     }
   }
 }
@@ -971,6 +971,6 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
       }
       break
     default:
-      console.warn('不能处理此消息', res)
+      console.warn('=====不能处理此消息=====', res)
   }
 })

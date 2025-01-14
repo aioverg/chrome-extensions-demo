@@ -37,25 +37,50 @@ chrome.tabs.onActivated.addListener((calb) => {
   // chrome.action.setBadgeText({ text: 'ON' }); // 增加文字
 })
 
+// 检查是否登录
+const checkLogin = async (callback) => {
+  const cookies = await chrome.storage.local.get(["cookies"])
+  const formData = new FormData()
+  formData.append('doAction', 'enterprise')
+  fetch(
+    'https://test.momo.dgbase.top/FrameServlet.do',
+    {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Cookie': cookies,
+      },
+      body: formData,
+    }
+  )
+  .then(res => res.body.getReader().read())
+  .then(res => {
+    if (res.done && !res.value) {
+      callback && callback(true)
+    }
+    return Promise.resolve()
+  })
+}
 
 // 监听 url 地址改变, 与 manifest.json 中 content_scripts 配置的一样
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab.url || changeInfo.status !== 'complete') {
     return
   }
+
+  // 检查是否登录
   if (tab.url.startsWith('https://seller.shopee.cn')) {
     chrome.tabs.sendMessage(
       tabId, 
       { type: 'urlChange', url: tab.url },
     )
-
-    const cookies = await chrome.storage.local.get(["cookies"])
-    if (cookies) {
+    checkLogin((val) => {
       chrome.tabs.sendMessage(
         tabId, 
-        { type: 'loginStatus', status: true },
+        { type: 'loginStatus', status: val },
       )
-    }
+    })
     return
   }
 
@@ -78,7 +103,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 })
 
-// 接收 content_script 的信息
+// 接收信息
 chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
   switch(res.type) {
     case 'import':
@@ -93,7 +118,7 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
       if (sender.tab) {
         // 商品导入
         if (res.type === 'import') {
-          chrome.storage.local.get(["user"]).then(user => {
+          chrome.storage.local.get(["cookies"]).then(val => {
             fetch(
               // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
               // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
@@ -102,7 +127,7 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
                 method: 'POST',
                 headers: {
                   'content-type': 'application/json',
-                  // 'Cookie': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+                  // 'cookie': val.cookies,
                   // 'authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
                 },
                 body: JSON.stringify(data),
@@ -146,22 +171,13 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
       }
       break
     case 'loginStatus':
-      chrome.cookies.getAll(
-        {
-          domain: ".momo.dgbase.top",
-          // name: 'JSESSIONID',
-        },
-        (res) => {
-          console.log(111111111)
-          if (sender.tab) {
-            sendResponse({ status: true })
-          }
-        }
-      )
+      checkLogin((val) => {
+        sendResponse({ type: 'loginStatus', status: val })
+      })
       // 回复异步消息
       return true
     default:
-      console.warn('不能处理此消息', res)
+      console.warn('=====不能处理此消息=====', res)
       
   }
 
