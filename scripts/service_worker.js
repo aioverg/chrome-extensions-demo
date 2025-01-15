@@ -124,13 +124,12 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
             fetch(
               // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
               // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-              'http://test.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+              'https://test.momo.dgbase.top/apiv2/item/goodsBatch/api/v1/importShopee',
               {
                 method: 'POST',
                 headers: {
                   'content-type': 'application/json',
-                  // 'cookie': val.cookies,
-                  // 'authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTczMDI3NTU1OSwiZXhwIjoxNzYxODExNTU5LCJ1c2VyIjoie1wiYXR0YWNobWVudHNcIjp7fSxcImlkXCI6MjAwMDAsXCJ0ZW5hbnRJZFwiOjEwMDAwLFwic2hvcElkXCI6MTAwMDAsXCJ1c2VybmFtZVwiOlwiYWRtaW5cIixcImd1ZXN0XCI6ZmFsc2UsXCJmb3JiaWRkZW5cIjpmYWxzZSxcImNvb2tpZURvbWFpblwiOlwiLmxvY2FsaG9zdFwifSJ9.fhT8A-5xruWAvKmTQFNgNTV3SLML2iMl6_BPCwewRxs',
+                  'Cookie': val.cookies,
                 },
                 body: JSON.stringify(data),
               }
