@@ -533,6 +533,12 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
       titleColor: '#343A40',
       contentText: `部分商品導入失败，本次成功導入 <span style="color: #5A72DB;">${val.num}</span> 個商品，已暂存商品，可到「商品管理-商品列表-暫存-搬家暫存」中確認商品信息後，再上架`,
       btText: '去查看已采集商品庫',
+    },
+    importLoading: {
+      title: '正在導入中...',
+      titleColor: '#343A40',
+      contentText: `<div style="color: #111827; line-height: 22px;">當前已導入 <span style="color: #28A745;" id="importLoadingNum">0</span> /${val.num} 個商品。</div><div style="padding-top: 8px; color: #6C757D; line-height: 22px;">請不要關閉瀏覽器，關閉後將停止導入</div><div style="color: #6C757D; line-height: 22px;">可以關閉當前彈框，導入完成後系統會提醒您</div>`,
+      btText: '我知道了',
     }
   }
 
@@ -650,19 +656,35 @@ function collectWarehouse() {
         for (const i of checkboxDoms) {
           i.checked && data.push(res.target.result[i.dataset.index].value)
         }
-        // 向插件发送信息并接受回复
-        chrome.runtime.sendMessage({
+
+        // 向插件发送消息
+        const port = chrome.runtime.connect({name: "importMomo"})
+        port.postMessage({
           type: 'import',
           data: data,
-        }, res => {
-          if (res.type === 'error') {
-            collectResultDialog({type: 'importFailed'})
-          } else if (res.type === 'success') {
-            collectResultDialog({ type: 'importSuccess', num: res.ids.length })
-            web.db.update(res.ids, true, cancalDom.click())
-          } else if (res.type === 'someSuccess') {
-            collectResultDialog({ type: 'importSomeSuccess', num: res.ids.length })
-            web.db.update(res.ids, true, cancalDom.click())
+        })
+        collectResultDialog({ type: 'importLoading', num: data.length })
+        port.onMessage.addListener(function(res) {
+          switch(res.type) {
+            case 'loading':
+              const importLoadingNumDom = document.getElementById('importLoadingNum')
+              if (importLoadingNumDom) {
+                importLoadingNumDom.innerText = res.successIds.length + res.failIds.length
+              }
+              break
+            case 'error':
+              collectResultDialog({type: 'importFailed'})
+              break
+            case 'success':
+              collectResultDialog({ type: 'importSuccess', num: res.successIds.length })
+              web.db.update(res.successIds, true, cancalDom.click())
+              break
+            case 'someSuccess':
+              collectResultDialog({ type: 'importSomeSuccess', num: res.successIds.length })
+              web.db.update(res.successIds, true, cancalDom.click())
+              break
+            default:
+              console.warn('=====不能处理此上传回复消息=====')
           }
         })
       }
