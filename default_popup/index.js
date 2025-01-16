@@ -1,16 +1,3 @@
-const web = {
-  shopee: {
-    name: 'shopee',
-    href: 'https://seller.shopee.tw/',
-    pages: [
-      /portal\/product\/mtsku\/list/,
-      /portal\/mtsku\/[0-9]+/,
-      /portal\/product\/list\/all/,
-      /portal\/product\/[0-9]+/,
-    ]
-  }
-}
-
 const loginStatusBoxDom = document.getElementById('login_status_box')
 const successHintDom = document.getElementById('success-hint')
 const step1SuccessDom = document.getElementById('step1_success')
@@ -57,7 +44,19 @@ document.addEventListener("DOMContentLoaded", async (event) => {
   chrome.tabs.query(
     {active: true, currentWindow: true},
     (tabs) => {
-      if (tabs[0] && tabs[0].url && tabs[0].url.startsWith(web.shopee.href) && web.shopee.pages.find(i => tabs[0].url.match(i))) {
+
+      let pageMatch = false
+      if (tabs[0] && tabs[0].url) {
+        const aimWeb = Object.values(aimWebs).find(i => tabs[0].url.startsWith(i.domain))
+        if (aimWeb) {
+          const aimPage = Object.values(aimWeb.pages).find(i => tabs[0].url.match(i))
+          if (aimPage) {
+            pageMatch = true
+          }
+        }
+      }
+
+      if (pageMatch) {
         step2SuccessDom.classList.remove('hidden')
         step2ErrorDom.classList.add('hidden')
       } else {

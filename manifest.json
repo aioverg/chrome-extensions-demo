@@ -29,10 +29,16 @@
   "host_permissions": ["*://*/*"],
   "content_scripts": [
     {
-      "js": ["scripts/content_script.js"],
+      "js": [
+        "content_scripts/icons.js",
+        "utils/webConfig.js",
+        "content_scripts/dbStorage.js",
+        "content_scripts/shopee/index.js",
+        "content_scripts/index.js"
+      ],
       "css": ["styles/content_script.css"],
       "matches": [
-        "https://seller.shopee.tw/*"
+        "https://seller.shopee.cn/*"
       ]
     }
   ],

@@ -1,5 +1,5 @@
 const web = {
-  shopeeUrl: 'https://seller.shopee.tw',
+  shopeeUrl: 'https://seller.shopee.cn',
   momoUrl: 'https://test.momo.dgbase.top',
 }
 
