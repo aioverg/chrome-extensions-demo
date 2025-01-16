@@ -93,8 +93,8 @@ const icon = {
 }
 
 // api 接口
+const baseUrl = 'https://seller.shopee.tw'
 const api = {
-  baseUrl: 'https://seller.shopee.tw',
   // shopee 全球商品详情接口 - mtsku
   shopeeDetails: async (params) => {
     const response = await fetch(`${baseUrl}/api/v3/mtsku/get_mtsku_info/?${params}`,{ method: 'get' })
@@ -863,7 +863,7 @@ function collectFloat() {
         checkDom ? switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'show') : switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'show')
         break
       default:
-        console.warn('=====类型检测出错=====')
+        console.warn('=====类型检测出错=====', web.curPage)
     }
   }
 }

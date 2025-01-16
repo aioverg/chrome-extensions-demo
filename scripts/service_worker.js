@@ -72,7 +72,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   // 检查是否登录
-  if (tab.url.startsWith('https://seller.shopee.cn')) {
+  if (tab.url.startsWith('https://seller.shopee.tw')) {
     chrome.tabs.sendMessage(
       tabId, 
       { type: 'urlChange', url: tab.url },
