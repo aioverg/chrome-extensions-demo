@@ -70,6 +70,71 @@ const checkLogin = async (callback) => {
   })
 }
 
+// momo 导入接口
+const importMomoApi = async (data) => {
+  return fetch(
+    'https://test.momo.dgbase.top/apiv2/item/goodsBatch/api/v1/importShopee',
+    {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        // 'Cookie': val.cookies,
+      },
+      body: [JSON.stringify(data)],
+    }
+  )
+  .then(response => response.json())
+  .then(response => {
+    if (response.success) {
+      // const successIds = []
+      // if (response.data.successThridIdList.length) {
+      //   for (const i of res.data) {
+      //     if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
+      //       successIds.push(i.__affix__.id)
+      //     } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
+      //       successIds.push(i.__affix__.id)
+      //     }
+      //   }
+      // }
+      // let type = 'error'
+      // if (successIds.length) {
+      //   if (successIds.length === res.data.length) {
+      //     type = 'success'
+      //   } else {
+      //     type = 'someSuccess'
+      //   }
+      // }
+      // sendResponse({ type: type, ids: successIds })
+      return Promise.resolve(true)
+    } else {
+      return Promise.resolve(false)
+      // sendResponse({type: 'error', ids: [] })
+    }
+    // console.log('=====导入结果=====', data)
+  })
+  .catch(err => {
+    console.warn('=====导入出错=====', err)
+    return Promise.resolve(false)
+    // sendResponse({type: 'error', ids: [] })
+  })
+}
+
+// momo 导入
+const importMomo = async (dataArr) => {
+  const result = []
+  const iter = async (index) => {
+    const res = await importMomoApi(dataArr[index])
+    result.push(res)
+    if (result.length === dataArr.length) {
+      return Promise.resolve()
+    } else {
+      await iter(index + 1)
+    }
+  }
+  await iter(0)
+  return Promise.resolve(result)
+}
+
 // 监听 url 地址改变, 与 manifest.json 中 content_scripts 配置的一样
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab.url || changeInfo.status !== 'complete') {
@@ -125,60 +190,64 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
       if (sender.tab) {
         // 商品导入
         if (res.type === 'import') {
-          chrome.storage.local.get(["cookies"]).then(async (val) => {
+          // chrome.storage.local.get(["cookies"]).then(async (val) => {
             
-            fetch(
-              // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-              // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
-              'https://test.momo.dgbase.top/apiv2/item/goodsBatch/api/v1/importShopee',
-              {
-                method: 'POST',
-                headers: {
-                  'content-type': 'application/json',
-                  'Cookie': val.cookies,
-                },
-                body: JSON.stringify(data),
-              }
-            )
-            .then(response => response.json())
-            .then(response => {
-              if (response.success) {
-                const successIds = []
-                response.data.successThridIdList = []
-                response.data.goodsList.forEach(i => {
-                  if(i.success) {
-                    successIds.push(i.id)
-                  }
-                })
-                if (response.data.successThridIdList.length) {
-                  for (const i of res.data) {
-                    if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
-                      successIds.push(i.__affix__.id)
-                    } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
-                      successIds.push(i.__affix__.id)
-                    }
-                  }
-                }
-                let type = 'error'
-                if (successIds.length) {
-                  if (successIds.length === res.data.length) {
-                    type = 'success'
-                  } else {
-                    type = 'someSuccess'
-                  }
-                }
-                sendResponse({ type: type, ids: successIds })
-              } else {
-                sendResponse({type: 'error', ids: [] })
-              }
-              console.log('=====导入结果=====', data)
-            })
-            .catch(err => {
-              console.warn('=====导入出错=====', err)
-              sendResponse({type: 'error', ids: [] })
-            })
-          })
+          //   fetch(
+          //     // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          //     // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
+          //     'https://test.momo.dgbase.top/apiv2/item/goodsBatch/api/v1/importShopee',
+          //     {
+          //       method: 'POST',
+          //       headers: {
+          //         'content-type': 'application/json',
+          //         'Cookie': val.cookies,
+          //       },
+          //       body: JSON.stringify(data),
+          //     }
+          //   )
+          //   .then(response => response.json())
+          //   .then(response => {
+          //     if (response.success) {
+          //       const successIds = []
+          //       response.data.successThridIdList = []
+          //       response.data.goodsList.forEach(i => {
+          //         if(i.success) {
+          //           successIds.push(i.id)
+          //         }
+          //       })
+          //       if (response.data.successThridIdList.length) {
+          //         for (const i of res.data) {
+          //           if (i.data.mpSkuJson && response.data.successThridIdList.includes(toString(i.data.mpSkuJson.id.toString()))) {
+          //             successIds.push(i.__affix__.id)
+          //           } else if (i.data.mtSkuJson && response.data.successThridIdList.includes(i.data.mtSkuJson.mtsku_item_id.toString())) {
+          //             successIds.push(i.__affix__.id)
+          //           }
+          //         }
+          //       }
+          //       let type = 'error'
+          //       if (successIds.length) {
+          //         if (successIds.length === res.data.length) {
+          //           type = 'success'
+          //         } else {
+          //           type = 'someSuccess'
+          //         }
+          //       }
+          //       sendResponse({ type: type, ids: successIds })
+          //     } else {
+          //       sendResponse({type: 'error', ids: [] })
+          //     }
+          //     console.log('=====导入结果=====', data)
+          //   })
+          //   .catch(err => {
+          //     console.warn('=====导入出错=====', err)
+          //     sendResponse({type: 'error', ids: [] })
+          //   })
+          // })
           // 回复异步消息
+          importMomo(data).then(res => {
+            console.log('=====导入结果=====', res)
+            sendResponse({type: 'error', ids: [] })
+          })
           return true
         }
       }
