@@ -1,7 +1,4 @@
-const web = {
-  shopeeUrl: 'https://seller.shopee.cn',
-  momoUrl: 'https://test.momo.dgbase.top',
-}
+importScripts('../utils/webConfig.js')
 
 // 加载图片
 async function loadImageData(url) {
@@ -147,8 +144,8 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     return
   }
 
-  // 检查是否登录
-  if (tab.url.startsWith(web.shopeeUrl)) {
+  // 向 content 通信
+  if (tab.url.startsWith(aimWebs.shopee.domain)) {
     chrome.tabs.sendMessage(
       tabId, 
       { type: 'urlChange', url: tab.url },
@@ -163,7 +160,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   // 获取 momo cookies
-  if (tab.url.startsWith(web.momoUrl)) {
+  if (tab.url.startsWith(momoDomain)) {
     chrome.cookies.getAll(
       {
         domain: ".momo.dgbase.top",

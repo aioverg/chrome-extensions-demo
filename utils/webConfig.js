@@ -1,3 +1,5 @@
+var momoDomain = 'https://test.momo.dgbase.top'
+
 var aimWebs = {
   shopee: {
     domain: "https://seller.shopee.cn",

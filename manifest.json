@@ -38,12 +38,12 @@
       ],
       "css": ["styles/content_script.css"],
       "matches": [
-        "https://seller.shopee.cn/*"
+        "https://seller.shopee.cn/*",
+        "https://seller.shopee.tw/*"
       ]
     }
   ],
   "background": {
-    "service_worker": "scripts/service_worker.js",
-    "type": "module"
+    "service_worker": "service_worker/index.js"
   }
 }
