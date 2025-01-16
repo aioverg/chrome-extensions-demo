@@ -1,5 +1,5 @@
 // 批量采集注入标识
-const injectTarget = {
+var injectTarget = {
   tableClass: 'momo-inject-class-table',
   allCheckboxId: 'momo-inject-id-all-checkbox',
   checkboxClass: 'momo-inject-class-checkbox',
