@@ -1,3 +1,8 @@
+const web = {
+  shopeeUrl: 'https://seller.shopee.tw',
+  momoUrl: 'https://test.momo.dgbase.top',
+}
+
 // 加载图片
 async function loadImageData(url) {
   const img = await createImageBitmap(await (await fetch(url)).blob())
@@ -72,7 +77,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   // 检查是否登录
-  if (tab.url.startsWith('https://seller.shopee.tw')) {
+  if (tab.url.startsWith(web.shopeeUrl)) {
     chrome.tabs.sendMessage(
       tabId, 
       { type: 'urlChange', url: tab.url },
@@ -87,7 +92,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   // 获取 momo cookies
-  if (tab.url.startsWith('https://test.momo.dgbase.top')) {
+  if (tab.url.startsWith(web.momoUrl)) {
     chrome.cookies.getAll(
       {
         domain: ".momo.dgbase.top",
@@ -120,7 +125,8 @@ chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
       if (sender.tab) {
         // 商品导入
         if (res.type === 'import') {
-          chrome.storage.local.get(["cookies"]).then(val => {
+          chrome.storage.local.get(["cookies"]).then(async (val) => {
+            
             fetch(
               // 'http://192.168.20.205:9000/item/goodsBatch/api/v1/importShopee?_public_key=momo',
               // 'https://dev.api.dgbase.top/item/goodsBatch/api/v1/importShopee?_public_key=momo',
