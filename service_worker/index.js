@@ -39,32 +39,30 @@ chrome.tabs.onActivated.addListener((calb) => {
   // chrome.action.setBadgeText({ text: 'ON' }); // 增加文字
 })
 
-// 检查是否登录
-const checkLogin = async (callback) => {
-  const cookies = await chrome.storage.local.get(["cookies"])
-  const formData = new FormData()
-  formData.append('doAction', 'enterprise')
-  fetch(
-    `${momoDomain}/FrameServlet.do`,
-    {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Cookie': cookies,
-      },
-      body: formData,
-    }
-  )
-  .then(res => res.body.getReader().read())
-  .then(res => {
-    if (res.done && !res.value) {
-      callback && callback(true)
-    } else {
-      callback && callback(false)
-    }
-    return Promise.resolve()
-  })
+// 获取登录状态
+const loginStatusApi = (callback) => {
+  try {
+    fetch(
+      `${momoDomain}/apiv2/item/check/api/v1/auth`,
+      {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+        }
+      }
+    )
+    .then(response => response.json())
+    .then(response => {
+      if (response.success) {
+        callback && callback(true)
+      } else {
+        callback && callback(false)
+      }
+    })
+  } catch(error) {
+    consol.error("=====登录校验出错=====", error)
+    callback && callback(false)
+  }
 }
 
 // momo 导入接口
@@ -75,7 +73,6 @@ const importMomoApi = async (data) => {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        // 'Cookie': val.cookies,
       },
       body: data,
     }
@@ -86,14 +83,11 @@ const importMomoApi = async (data) => {
       return Promise.resolve(response.data.goodsList[0])
     } else {
       return Promise.resolve(false)
-      // sendResponse({type: 'error', ids: [] })
     }
-    // console.log('=====导入结果=====', data)
   })
   .catch(err => {
     console.warn('=====导入出错=====', err)
     return Promise.resolve(false)
-    // sendResponse({type: 'error', ids: [] })
   })
 }
 
@@ -150,30 +144,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       tabId, 
       { type: 'urlChange', url: tab.url },
     )
-    checkLogin((val) => {
+    loginStatusApi((val) => {
       chrome.tabs.sendMessage(
         tabId, 
         { type: 'loginStatus', status: val },
       )
     })
-    return
-  }
-
-  // 获取 momo cookies
-  if (tab.url.startsWith(momoDomain)) {
-    chrome.cookies.getAll(
-      {
-        domain: ".momo.dgbase.top",
-        // name: 'JSESSIONID',
-      },
-      (res) => {
-        let cookies = ''
-        res.forEach((i) => {
-          cookies += `${i.name}=${i.value}${cookies ? ';' : ''}`
-        })
-        chrome.storage.local.set({cookies: cookies})
-      }
-    )
     return
   }
 })
@@ -195,7 +171,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 chrome.runtime.onMessage.addListener( (res, sender, sendResponse) => {
   switch(res.type) {
     case 'loginStatus':
-      checkLogin((val) => {
+      loginStatusApi((val) => {
         sendResponse({ type: 'loginStatus', status: val })
       })
       // 回复异步消息
