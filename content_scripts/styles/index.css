@@ -14,9 +14,9 @@
   display: none;
 }
 
-.momo-disabled {
+/* .momo-disabled {
   filter: grayscale(0.7);
-}
+} */
 
 .momo-collect-float .momo-collect-float-content {
   height: 0;
@@ -34,7 +34,7 @@
 }
 
 .momo-collect-float #momo-id-fold-float {
-  height: 50px;
+  height: 54px;
   position: absolute;
   bottom: 0;
   cursor: pointer;
@@ -314,6 +314,3 @@
   left: -2px;
   top: -2px;
 }
-
-
-  

@@ -232,7 +232,7 @@ var aimWeb = {
           console.warn('没有 cnsc_shop_id')
         }
 
-        const productDetailsRes = await aimApi.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}${cnsc_shop_id ? '&' + cnsc_shop_id: ''}is_draft=false&cbsc_shop_region=my`)
+        const productDetailsRes = await aimApi.productDetails(`${SPC_CDS}&SPC_CDS_VER=2&product_id=${product_id}${cnsc_shop_id ? '&' + cnsc_shop_id: ''}&is_draft=false&cbsc_shop_region=my`)
         // const mtskuByMpskuRes = await aimApi.mtskuByMpsku(`${SPC_CDS}&SPC_CDS_VER=2&mpsku_id=${product_id}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
         // const shopeeDetailsRes = await aimApi.shopeeDetails(`${SPC_CDS}&SPC_CDS_VER=2&mtsku_item_id=${mtskuByMpskuRes}&cnsc_shop_id=${cnsc_shop_id}&cbsc_shop_region=my`)
 

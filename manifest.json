@@ -36,7 +36,7 @@
         "content_scripts/shopee/index.js",
         "content_scripts/index.js"
       ],
-      "css": ["styles/content_script.css"],
+      "css": ["content_scripts/styles/index.css"],
       "matches": [
         "https://seller.shopee.cn/*",
         "https://seller.shopee.tw/*"
