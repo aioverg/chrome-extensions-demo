@@ -45,7 +45,7 @@ const checkLogin = async (callback) => {
   const formData = new FormData()
   formData.append('doAction', 'enterprise')
   fetch(
-    'https://test.momo.dgbase.top/FrameServlet.do',
+    `${momoDomain}/FrameServlet.do`,
     {
       method: 'POST',
       headers: {
@@ -70,14 +70,14 @@ const checkLogin = async (callback) => {
 // momo 导入接口
 const importMomoApi = async (data) => {
   return fetch(
-    'https://test.momo.dgbase.top/apiv2/item/goodsBatch/api/v1/importShopee',
+    `${momoDomain}/apiv2/item/goodsBatch/api/v1/importShopee`,
     {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         // 'Cookie': val.cookies,
       },
-      body: [JSON.stringify(data)],
+      body: data,
     }
   )
   .then(response => response.json())
