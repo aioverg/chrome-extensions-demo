@@ -2,7 +2,7 @@ var momoDomain = 'https://test.momo.dgbase.top'
 
 var aimWebs = {
   shopee: {
-    domain: "https://seller.shopee.cn",
+    domain: "https://seller.shopee.tw",
     pages: {
       // 全球商品列表
       mtskuList: /portal\/product\/mtsku\/list/,
