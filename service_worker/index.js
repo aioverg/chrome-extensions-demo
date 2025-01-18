@@ -113,7 +113,7 @@ const importMomo = async (dataArr, port) => {
     } else {
       reply.failIds.push(dataArr[index].__affix__.id)
       if (!reply.message) {
-        reply.message = res.data.goodsList[0].errorMsg
+        reply.message = res.errorMsg
       }
     }
     port.postMessage(reply)
