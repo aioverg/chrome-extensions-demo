@@ -411,9 +411,9 @@ function collectFloat() {
         <div id="momo-id-open-collect">${momoIcon.collect}</div>
       </div>
 
-      <div id="momo-id-fold-float">
-        <span id="momo-id-fold-float-icon1">${momoIcon.brand}</span>
-        <span id="momo-id-fold-float-icon2" class="momo-hidden">${momoIcon.brandGray}</span>
+      <div id="momo-id-fold-float" class="momo-disabled">
+        <span id="momo-id-fold-float-icon1" class="momo-hidden">${momoIcon.brand}</span>
+        <span id="momo-id-fold-float-icon2">${momoIcon.brandGray}</span>
       </div>
     </div>
   `
@@ -463,7 +463,7 @@ function collectFloat() {
 // 是否可用浮窗
 function disabledFloat() {
   const dom = `
-    <div id="momo-id-disabled-float" class="momo-hidden" style="z-index: 9999; width: 340px; padding: 24px 16px; position: fixed; top: 310px; right: 85px; background: #fff; border-radius: 8px; box-shadow: 0px 138px 184px 0px rgba(0, 0, 0, 0.03), 0px 57.653px 76.871px 0px rgba(0, 0, 0, 0.02), 0px 30.824px 41.099px 0px rgba(0, 0, 0, 0.02), 0px 17.28px 23.04px 0px rgba(0, 0, 0, 0.01), 0px 9.177px 12.236px 0px rgba(0, 0, 0, 0.01), 0px 3.819px 5.092px 0px rgba(0, 0, 0, 0.01); ">
+    <div id="momo-id-disabled-float" class="momo-hidden" style="z-index: 9999; width: 340px; padding: 24px 16px; position: fixed; top: 260px; right: 85px; background: #fff; border-radius: 8px; box-shadow: 0px 138px 184px 0px rgba(0, 0, 0, 0.03), 0px 57.653px 76.871px 0px rgba(0, 0, 0, 0.02), 0px 30.824px 41.099px 0px rgba(0, 0, 0, 0.02), 0px 17.28px 23.04px 0px rgba(0, 0, 0, 0.01), 0px 9.177px 12.236px 0px rgba(0, 0, 0, 0.01), 0px 3.819px 5.092px 0px rgba(0, 0, 0, 0.01); ">
       <div style="display: flex; align-items: center; padding-bottom: 16px;">
         <svg width="57" height="24" viewBox="0 0 57 24" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
           <rect width="56.5056" height="24" fill="url(#pattern0_11294_3796)"/>

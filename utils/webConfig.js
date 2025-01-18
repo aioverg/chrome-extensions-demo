@@ -1,4 +1,4 @@
-var momoDomain = 'https://test.momo.dgbase.top'
+var momoDomain = 'https://3puat.momo.com.tw'
 
 var aimWebs = {
   shopee: {

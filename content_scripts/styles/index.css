@@ -1,6 +1,6 @@
 .momo-collect-float {
   position: fixed;
-  top: 250px;
+  top: 200px;
   right: 20px;
   font-size: 12px;
   display: flex;
@@ -56,7 +56,7 @@
 
 .momo-collect-tip {
   position: fixed;
-  top: 365px;
+  top: 315px;
   right: 90px;
   padding: 6px 6px 6px 12px;
   background: #fff;
