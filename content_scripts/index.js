@@ -485,7 +485,7 @@ function disabledFloat() {
       <div id="momo-id-login_status_box" style="padding: 8px; border-radius: 6px; background: #F6F7FA; margin: 12px 0 16px; font-size: 14px; line-height: 22px;">
         <div style="position: relative;">
           <span style="display: inline-block; width: 20px; height: 20px; position: relative; top: 5px; margin-right: 8px;">
-            <svg id="momo-id-step1_success" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <svg id="momo-id-step1_success" class="momo-hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M13.6711 8.15028C13.9152 7.9062 13.9152 7.51047 13.6711 7.26639C13.427 7.02231 13.0313 7.02231 12.7872 7.26639L8.85417 11.1994L7.10861 9.45389C6.86453 9.20981 6.4688 9.20981 6.22472 9.45389C5.98065 9.69797 5.98065 10.0937 6.22472 10.3378L8.41222 12.5253C8.6563 12.7694 9.05203 12.7694 9.29611 12.5253L13.6711 8.15028Z" fill="#28A745"/>
               <path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.875C5.51269 1.875 1.875 5.51269 1.875 10C1.875 14.4873 5.51269 18.125 10 18.125C14.4873 18.125 18.125 14.4873 18.125 10C18.125 5.51269 14.4873 1.875 10 1.875ZM3.125 10C3.125 6.20304 6.20304 3.125 10 3.125C13.797 3.125 16.875 6.20304 16.875 10C16.875 13.797 13.797 16.875 10 16.875C6.20304 16.875 3.125 13.797 3.125 10Z" fill="#28A745"/>
             </svg>
@@ -498,7 +498,7 @@ function disabledFloat() {
 
         <div style="display: flex; margin-top: 8px;">
           <span style="display: inline-block; width: 20px; height: 20px; position: relative; top: 3px; margin-right: 12px;">
-            <svg id="momo-id-step2_success" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <svg id="momo-id-step2_success" class="momo-hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M13.6711 8.15028C13.9152 7.9062 13.9152 7.51047 13.6711 7.26639C13.427 7.02231 13.0313 7.02231 12.7872 7.26639L8.85417 11.1994L7.10861 9.45389C6.86453 9.20981 6.4688 9.20981 6.22472 9.45389C5.98065 9.69797 5.98065 10.0937 6.22472 10.3378L8.41222 12.5253C8.6563 12.7694 9.05203 12.7694 9.29611 12.5253L13.6711 8.15028Z" fill="#28A745"/>
               <path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.875C5.51269 1.875 1.875 5.51269 1.875 10C1.875 14.4873 5.51269 18.125 10 18.125C14.4873 18.125 18.125 14.4873 18.125 10C18.125 5.51269 14.4873 1.875 10 1.875ZM3.125 10C3.125 6.20304 6.20304 3.125 10 3.125C13.797 3.125 16.875 6.20304 16.875 10C16.875 13.797 13.797 16.875 10 16.875C6.20304 16.875 3.125 13.797 3.125 10Z" fill="#28A745"/>
             </svg>
@@ -542,7 +542,7 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
   switchTip('momo-id-batch-collect-tip-1', 'momo-batch-collect-tip-1', 'hidden')
   switchTip('momo-id-batch-collect-tip-2', 'momo-batch-collect-tip-2', 'hidden')
   
-  const collectFoldFloatDom = document.getElementById('momo-id-fold-float')
+
   const step1SuccessDom = document.getElementById('momo-id-step1_success')
   const step1ErrorDom = document.getElementById('momo-id-step1_error')
   const step2SuccessDom = document.getElementById('momo-id-step2_success')
@@ -552,6 +552,33 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
   const foldBtIcon1 =  document.getElementById('momo-id-fold-float-icon1')
   const foldBtIcon2 =  document.getElementById('momo-id-fold-float-icon2')
   switch(res.type) {
+    // 是否登录
+    case 'loginStatus':
+      if (res.status) {
+        step1SuccessDom && step1SuccessDom.classList.remove('momo-hidden')
+        step1ErrorDom && step1ErrorDom.classList.add('momo-hidden')
+        if (step2ErrorDom.classList.contains('momo-hidden')) {
+          foldBt && foldBt.classList.remove('momo-disabled')
+          foldBtIcon1 && foldBtIcon1.classList.remove('momo-hidden')
+          foldBtIcon2 && foldBtIcon2.classList.add('momo-hidden')
+        } else {
+          floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
+          foldBt && foldBt.classList.remove('momo-unfold')
+          foldBt && foldBt.classList.add('momo-disabled')
+          foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
+          foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
+        }
+      } else {
+        step1SuccessDom && step1SuccessDom.classList.add('momo-hidden')
+        step1ErrorDom && step1ErrorDom.classList.remove('momo-hidden')
+
+        floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
+        foldBt && foldBt.classList.remove('momo-unfold')
+        foldBt && foldBt.classList.add('momo-disabled')
+        foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
+        foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
+      }
+      break
     // 页面是否可用
     case 'urlChange':
       let usedPage = false
@@ -569,26 +596,17 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
           foldBt && foldBt.classList.remove('momo-disabled')
           foldBtIcon1 && foldBtIcon1.classList.remove('momo-hidden')
           foldBtIcon2 && foldBtIcon2.classList.add('momo-hidden')
+        } else {
+          floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
+          foldBt && foldBt.classList.remove('momo-unfold')
+          foldBt && foldBt.classList.add('momo-disabled')
+          foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
+          foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
         }
       } else {
-        floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
-        foldBt && foldBt.classList.remove('momo-unfold')
-        foldBt && foldBt.classList.add('momo-disabled')
-        foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
-        foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
-      }
-      break
-    // 是否登录
-    case 'loginStatus':
-      if (res.status) {
-        step1SuccessDom && step1SuccessDom.classList.remove('momo-hidden')
-        step1ErrorDom && step1ErrorDom.classList.add('momo-hidden')
-        if (step2ErrorDom.classList.contains('momo-hidden')) {
-          foldBt && foldBt.classList.remove('momo-disabled')
-          foldBtIcon1 && foldBtIcon1.classList.remove('momo-hidden')
-          foldBtIcon2 && foldBtIcon2.classList.add('momo-hidden')
-        }
-      } else {
+        step2SuccessDom && step2SuccessDom.classList.add('momo-hidden')
+        step2ErrorDom && step2ErrorDom.classList.remove('momo-hidden')
+
         floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
         foldBt && foldBt.classList.remove('momo-unfold')
         foldBt && foldBt.classList.add('momo-disabled')
