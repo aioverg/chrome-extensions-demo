@@ -562,9 +562,7 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
           break
         }
       }
-      const collectFloatDom = document.getElementById('momo-id-collect-float')
       if (usedPage) {
-        // collectFloatDom && collectFloatDom.classList.remove('momo-hidden')
         step2SuccessDom && step2SuccessDom.classList.remove('momo-hidden')
         step2ErrorDom && step2ErrorDom.classList.add('momo-hidden')
         if (step1ErrorDom.classList.contains('momo-hidden')) {
@@ -573,14 +571,11 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
           foldBtIcon2 && foldBtIcon2.classList.add('momo-hidden')
         }
       } else {
-        // collectFloatDom && collectFloatDom.classList.add('momo-hidden')
         floatContentDom && floatContentDom.classList.remove('momo-unfold-content')
         foldBt && foldBt.classList.remove('momo-unfold')
         foldBt && foldBt.classList.add('momo-disabled')
         foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
         foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
-        step2SuccessDom && step2SuccessDom.classList.add('momo-hidden')
-        step2ErrorDom && step2ErrorDom.classList.remove('momo-hidden')
       }
       break
     // 是否登录
@@ -599,8 +594,6 @@ chrome.runtime.onMessage.addListener((res, sender, sendRes) => {
         foldBt && foldBt.classList.add('momo-disabled')
         foldBtIcon1 && foldBtIcon1.classList.add('momo-hidden')
         foldBtIcon2 && foldBtIcon2.classList.remove('momo-hidden')
-        step1SuccessDom && step1SuccessDom.classList.add('momo-hidden')
-        step1ErrorDom && step1ErrorDom.classList.remove('momo-hidden')
       }
       break
     default:
