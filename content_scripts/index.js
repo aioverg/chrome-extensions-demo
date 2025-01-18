@@ -87,7 +87,7 @@ function collectFailDialog() {
 }
 
 // 采集结果 dialog
-function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
+function collectResultDialog(val = {type: 'collectFailed', num: 0, message}) {
   const destroyDom = document.getElementById('collect-id-result-dialog')
   destroyDom && destroyDom.remove()
 
@@ -107,7 +107,7 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
     collectSomeSuccess: {
       title: '部分採集成功',
       titleColor: '#343A40',
-      contentText: `部分商品採1集成功，本次成功探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-採集商品庫」中查看已採集商品`,
+      contentText: `部分商品採集成功，本次成功探集 <span style="color: #5A72DB;">${val.num}</span> 個商品，可到「插件-採集商品庫」中查看已採集商品`,
       btText: '去查看已采集商品庫',
     },
     importLoading: {
@@ -119,7 +119,7 @@ function collectResultDialog(val = {type: 'collectFailed', num: 0}) {
     importFailed: {
       title: '導入失敗',
       titleColor: '#343A40',
-      contentText: '系统異常，商品導入失敗，請重新導入',
+      contentText: val.message || '系统異常，商品導入失敗，請重新導入',
       btText: '我知道了',
     },
     importSuccess: {
@@ -267,7 +267,7 @@ function collectWarehouse() {
               }
               break
             case 'error':
-              collectResultDialog({type: 'importFailed'})
+              collectResultDialog({type: 'importFailed', message: res.message})
               break
             case 'success':
               collectResultDialog({ type: 'importSuccess', num: res.successIds.length })

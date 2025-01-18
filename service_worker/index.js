@@ -82,7 +82,7 @@ const importMomoApi = async (data) => {
     if (response.success) {
       return Promise.resolve(response.data.goodsList[0])
     } else {
-      return Promise.resolve(false)
+      return Promise.resolve(response.data.goodsList[0])
     }
   })
   .catch(err => {
@@ -112,6 +112,9 @@ const importMomo = async (dataArr, port) => {
       reply.successIds.push(dataArr[index].__affix__.id)
     } else {
       reply.failIds.push(dataArr[index].__affix__.id)
+      if (reply.message) {
+        reply.message = res.data.goodsList[0].errorMsg
+      }
     }
     port.postMessage(reply)
     if (result.length === dataArr.length) {
